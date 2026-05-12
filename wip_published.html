@@ -108,7 +108,7 @@ body{background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,
 /* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:clamp(16px,4vw,40px) clamp(12px,3vw,20px);overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .25s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
-.modal{background:#111;border-radius:20px;width:100%;max-width:860px;border:1px solid #222;overflow:hidden;transform:translateY(20px);transition:transform .25s;}
+.modal{background:#111;border-radius:20px;width:100%;max-width:1100px;border:1px solid #222;overflow:hidden;transform:translateY(20px);transition:transform .25s;}
 .modal-overlay.open .modal{transform:translateY(0);}
 .modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #1c1c1c;}
 .modal-title{font-size:clamp(13px,2vw,16px);font-weight:700;color:#f5f5f7;}
@@ -134,7 +134,7 @@ body{background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,
 @media(max-width:640px){
   .summary-row{grid-template-columns:1fr;}
   .kpi-pair{grid-template-columns:1fr 1fr;}
-  .donut-card{display:none;}
+  
   .foreman-bar-wrap{display:none;}
   .col-hide-phone{display:none;}
   .job-name{max-width:140px;}
@@ -154,7 +154,7 @@ body{background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,
 }
 </style>
 <script type="application/json" id="wip-data">[{"jobNum":"01-09-013900ABAT","jobName":"CUEVAS, Norma-926 Camulos St-LEAD/ABATEMENT","rawDiv":"Abatement","divKey":"EMERGENCY","foreman":"","coord":"Erika Gomez","estimates":17870.1,"jobCost":209.72,"gpDollar":17660.379999999997,"gpPct":98.82641954997453},{"jobNum":"01-09-014405CON","jobName":"TURNER, Bryon-1195 Sunflower Ave-Bathroom Leak","rawDiv":"Contents","divKey":"EMERGENCY","foreman":"Toribio Ramirez","coord":"Maria Jimenez","estimates":10995.7,"jobCost":5416.728,"gpDollar":5578.972000000001,"gpPct":50.737761124803335},{"jobNum":"01-09-014405STR","jobName":"TURNER, Bryon-1195 Sunflower Ave-Bathroom Leak","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Toribio Ramirez","coord":"Maria Jimenez","estimates":19776.37,"jobCost":14831.460000000001,"gpDollar":4944.909999999998,"gpPct":25.00413372120363},{"jobNum":"01-09-014405US-1","jobName":"TURNER, Bryon-1195 Sunflower Ave-PAINTING","rawDiv":"Upsales","divKey":"STRUCTURE","foreman":"Toribio Ramirez","coord":"Queta Lopez","estimates":6500.0,"jobCost":2096.87,"gpDollar":4403.13,"gpPct":67.74046153846155},{"jobNum":"01-09-014470FIRESTR","jobName":"HICKS, Raquel-11522 Dartmouth Dr. FIRE","rawDiv":"Fire Restoration","divKey":"STRUCTURE","foreman":"","coord":"Maria Jimenez","estimates":214827.57,"jobCost":200627.02000000002,"gpDollar":14200.549999999988,"gpPct":6.6102083638519895},{"jobNum":"01-09-014756STR","jobName":"RAMIREZ, Samuel-130 S Barranca St. #212","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"","coord":"Maria Jimenez","estimates":0.0,"jobCost":3022.5399999999995,"gpDollar":-3022.5399999999995,"gpPct":0.0},{"jobNum":"01-09-015090STR-1","jobName":"Solair Wilshire HOA-Commercial Spaces (Garage Fire Sprinkler Leak 12/21/24) 2ND CLAIM","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"","coord":"Maria Jimenez","estimates":99863.13,"jobCost":17437.88,"gpDollar":82425.25,"gpPct":82.53822006179858},{"jobNum":"01-09-015164FIRE","jobName":"GRIFFITH, Abby and Bill-487 E Ladera St.-Fire Restoration","rawDiv":"Fire Mitigation","divKey":"EMERGENCY","foreman":"Toribio Ramirez","coord":"Queta Lopez","estimates":154067.03,"jobCost":104331.54999999999,"gpDollar":49735.48000000001,"gpPct":32.281715302748424},{"jobNum":"01-09-015169FIRE","jobName":"ROJAS, Cynthia-524 Mountain View St. FIRE","rawDiv":"Fire Mitigation","divKey":"EMERGENCY","foreman":"Toribio Ramirez","coord":"Queta Lopez","estimates":133573.76,"jobCost":44824.64,"gpDollar":88749.12000000001,"gpPct":66.44203172838738},{"jobNum":"01-09-015412FIRE","jobName":"DE LA CROIX, Jean-Pierre & Lauren-516 Mountain View St. -Fire Remediation","rawDiv":"Fire Mitigation","divKey":"EMERGENCY","foreman":"Toribio Ramirez","coord":"Queta Lopez","estimates":130167.72,"jobCost":39912.09,"gpDollar":90255.63,"gpPct":69.33795106805282},{"jobNum":"01-09-015412-STR-1","jobName":"DE LA CROIX, Jean-Pierre & Lauren-516 Mountain View St.  EXTERIOR","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Toribio Ramirez","coord":"Queta Lopez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"01-09-015507-MNT-1","jobName":"Ponderosa Pines-Carport Roofing- additional spaces","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"","coord":"Itzel Flores","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"01-09-015567ELE","jobName":"Seabluff-Reg 4 Common Hallway Lighting","rawDiv":"Electrical","divKey":"ELECTRICAL","foreman":"","coord":"Maria Jimenez","estimates":24997.0,"jobCost":18372.646000000004,"gpDollar":6624.353999999996,"gpPct":26.500596071528566},{"jobNum":"01-09-015696WTR","jobName":"KIRAN RAINA, Prabhat-684 W Figueroa Dr.","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Victor Narvaez","coord":"Vanessa Sanchez","estimates":18395.51,"jobCost":623.192,"gpDollar":17772.318,"gpPct":96.61226027438217},{"jobNum":"01-09-015706CON","jobName":"COBURN, Kathy-148 Spencer Ave-CONTENTS","rawDiv":"Contents","divKey":"EMERGENCY","foreman":"Steve Hass","coord":"Maria Jimenez","estimates":7392.5199999999995,"jobCost":8227.574,"gpDollar":-835.054000000001,"gpPct":-11.295931563255845},{"jobNum":"01-09-015706STR","jobName":"COBURN, Kathy-148 Spencer Ave-Kitchen/Dining Rm. Leak (4/23/25)","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"","coord":"Maria Jimenez","estimates":46093.95,"jobCost":34775.388000000006,"gpDollar":11318.56199999999,"gpPct":24.555417793441418},{"jobNum":"01-09-016205STR","jobName":"MOAT, Ralph-22 San Sebastian-FIRE","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":107377.1,"jobCost":66588.53000000001,"gpDollar":40788.56999999999,"gpPct":37.98628385381984},{"jobNum":"01-09-016205STR-2","jobName":"MOAT, Ralph-22 San Sebastian- Electrical Repairs","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":2970.0,"jobCost":0.0,"gpDollar":2970.0,"gpPct":100.0},{"jobNum":"01-09-016205US","jobName":"MOAT, Ralph-22 San Sebastian- Additional Framing","rawDiv":"Upsales","divKey":"STRUCTURE","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":3850.0,"jobCost":51.6,"gpDollar":3798.4,"gpPct":98.65974025974026},{"jobNum":"01-09-016207PLM","jobName":"RESIDENTIAL PLUMBING","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Guadalupe Lopez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"01-09-016255STR","jobName":"KAWAMURA, Makiko-Four Seasons LA-Unit 305-Repairs for Floor Heating System","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":35000.0,"jobCost":20712.397999999997,"gpDollar":14287.602000000003,"gpPct":40.821720000000006},{"jobNum":"01-09-016255-US","jobName":"KAWAMURA, Makiko-Four Seasons LA-Unit 305-Additional Repairs","rawDiv":"Upsales","divKey":"STRUCTURE","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":54785.4,"jobCost":568.6999999999999,"gpDollar":54216.700000000004,"gpPct":98.96194971653031},{"jobNum":"01-09-016435PLM","jobName":"CHUN, Dennis- Unit 131 Shower Valve Replacement","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":763.3199999999999,"gpDollar":-763.3199999999999,"gpPct":0.0},{"jobNum":"01-09-016554MWO","jobName":"Faire Harbour [XN25219657] - Windows","rawDiv":"Maint Work Order","divKey":"MAINTENANCE","foreman":"","coord":"Itzel Flores","estimates":12802.68,"jobCost":9966.462,"gpDollar":2836.2180000000008,"gpPct":22.153314774719046},{"jobNum":"01-09-016607-PLM-2","jobName":"Ten50-Linda Tsui-Additional Work (Drywall)","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":58.5,"gpDollar":-58.5,"gpPct":0.0},{"jobNum":"01-09-016822MWO","jobName":"Diamond Bar Country Estates-Portable Toilets (Pool Area Restrooms)","rawDiv":"Maint Work Order","divKey":"MAINTENANCE","foreman":"Maria Jimenez","coord":"Maria Jimenez","estimates":2850.0,"jobCost":1265.13,"gpDollar":1584.87,"gpPct":55.60947368421053},{"jobNum":"01-09-016905-PLM","jobName":"KIM, Jay-Metropolis-Unit 2109 Valve Inspection","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":1.5,"gpDollar":-1.5,"gpPct":0.0},{"jobNum":"01-09-016905STR","jobName":"KIM, Jay-Metropolis-UNIT 2109 REPAIRS","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Adrian Gonzalez","coord":"Queta Lopez","estimates":51858.22,"jobCost":11303.759999999998,"gpDollar":40554.46000000001,"gpPct":78.20256846455587},{"jobNum":"01-09-016905-US","jobName":"KIM, Jay-Metropolis-UNIT 2109 Remodel","rawDiv":"Upsales","divKey":"STRUCTURE","foreman":"Adrian Gonzalez","coord":"Queta Lopez","estimates":25000.0,"jobCost":1090.154,"gpDollar":23909.846,"gpPct":95.639384},{"jobNum":"01-09-016905-US-1","jobName":"KIM, Jay-Metropolis-UNIT 2109 Stair Tread","rawDiv":"Upsales","divKey":"STRUCTURE","foreman":"Adrian Gonzalez","coord":"Queta Lopez","estimates":8011.48,"jobCost":5626.75,"gpDollar":2384.7299999999996,"gpPct":29.76641020136104},{"jobNum":"01-09-017156CON-2","jobName":"Chen, Rosa Metropolis Units-2506-12/13","rawDiv":"Contents","divKey":"EMERGENCY","foreman":"Victor Narvaez","coord":"Vanessa Sanchez","estimates":10996.47,"jobCost":4660.2,"gpDollar":6336.2699999999995,"gpPct":57.62094563073423},{"jobNum":"01-09-017156STR-1","jobName":"KIM, Hyun \"Joseph\"-Metropolis- Units-2406 (2506 Stack Leak 12/13/25)","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":117284.76000000001,"jobCost":71034.09,"gpDollar":46250.67000000001,"gpPct":39.434509649847094},{"jobNum":"01-09-017182-MNT","jobName":"The Addison - Fenton Grant- Storage Leak Approval","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"","coord":"Itzel Flores","estimates":14480.0,"jobCost":2424.0,"gpDollar":12056.0,"gpPct":83.25966850828729},{"jobNum":"01-09-017189-WTR-1","jobName":"GOMEZ, Erika-17350 Temple Ave TEST JOB","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Erika Gomez","coord":"Erika Gomez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"01-09-017205-MNT-5","jobName":"Seabluff- May-2026 Maintenance","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Alfredo Dominguez","coord":"Itzel Flores","estimates":0.0,"jobCost":448.32,"gpDollar":-448.32,"gpPct":0.0},{"jobNum":"01-09-017232-MNT-5","jobName":"Tempo - May-  2026 Maintenance Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Alfredo Dominguez","coord":"Itzel Flores","estimates":0.0,"jobCost":452.8,"gpDollar":-452.8,"gpPct":0.0},{"jobNum":"01-09-017234-MNT-5","jobName":"The Royal Palms - May -  2026 Maintenance Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Carlos Partida","coord":"Itzel Flores","estimates":0.0,"jobCost":1000.54,"gpDollar":-1000.54,"gpPct":0.0},{"jobNum":"01-09-017235-MNT-5","jobName":"Pacifica Promenade - May -  2026 Main Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Carlos Partida","coord":"Itzel Flores","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"01-09-017236-MNT-5","jobName":"Eight-Twenty- May-  2026 Maintenance  Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Alfredo Dominguez","coord":"Itzel Flores","estimates":0.0,"jobCost":330.0,"gpDollar":-330.0,"gpPct":0.0},{"jobNum":"01-09-017237-MNT-5","jobName":"The Galaxy- May-  2026 Maintenance Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Alfredo Dominguez","coord":"Itzel Flores","estimates":0.0,"jobCost":392.0,"gpDollar":-392.0,"gpPct":0.0},{"jobNum":"01-09-017238-MNT-5","jobName":"Parkside Condominium Association- 2026-May-  Maintenance Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Alfredo Dominguez","coord":"Itzel Flores","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"01-09-017244-MNT-5","jobName":"Hollywood Regis- May- 2026 Maintenance Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Alfredo Dominguez","coord":"Itzel Flores","estimates":0.0,"jobCost":332.0,"gpDollar":-332.0,"gpPct":0.0},{"jobNum":"01-09-017245-MNT-5","jobName":"Beacon Lofts- May - 2026 Maintenance Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Carlos Partida","coord":"Itzel Flores","estimates":0.0,"jobCost":907.84,"gpDollar":-907.84,"gpPct":0.0},{"jobNum":"01-09-017247-MNT-5","jobName":"Ambassador Gardens -May -  2026 Maintenance Inspection","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Alonso Perez","coord":"Itzel Flores","estimates":0.0,"jobCost":664.73,"gpDollar":-664.73,"gpPct":0.0},{"jobNum":"01-09-017253WTR","jobName":"TAVAREZ, Jose-TEST JOB","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"","coord":"Erika Gomez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"01-09-017270-MNT-5","jobName":"8899 Beverly- May- 2026 Water Flushing","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"Alfredo Dominguez","coord":"Itzel Flores","estimates":0.0,"jobCost":332.0,"gpDollar":-332.0,"gpPct":0.0},{"jobNum":"01-09-017293STR","jobName":"WILLS, Tasha-7646 Sandpiper Ct.","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Toribio Ramirez","coord":"Queta Lopez","estimates":16434.03,"jobCost":3777.79,"gpDollar":12656.239999999998,"gpPct":77.01239440356382},{"jobNum":"01-09-017309WTR","jobName":"LEE, Phillip-3614 Redwood Lane","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"","coord":"Vanessa Sanchez","estimates":2773.75,"jobCost":0.0,"gpDollar":2773.75,"gpPct":100.0},{"jobNum":"26-0053-CON","jobName":"Siobhan Weiss and Lewis Overbey-Metropolis Unit 2506 TENANT'S CONTENTS","rawDiv":"Contents","divKey":"EMERGENCY","foreman":"Julio Salas","coord":"Vanessa Sanchez","estimates":17277.57,"jobCost":7713.3,"gpDollar":9564.27,"gpPct":55.35656923977157},{"jobNum":"26-0066-PLM","jobName":"W- Janette Ledea - Unit 11k- Guest shower faucet handle is broken.","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Alonso Perez","coord":"Marcella Sanchez","estimates":1685.0,"jobCost":957.79,"gpDollar":727.21,"gpPct":43.15786350148368},{"jobNum":"26-0068-CON","jobName":"CEJAS, Luis Roberto -21136 E. Calora St. CONTENTS","rawDiv":"Contents","divKey":"EMERGENCY","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":12211.65,"jobCost":0.0,"gpDollar":12211.65,"gpPct":100.0},{"jobNum":"26-0102-RPLM","jobName":"DUANGSRISAI, Tom-1235 Gatlin Ave (Google Lead)","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Alonso Perez","coord":"Maria Jimenez","estimates":525.0,"jobCost":0.0,"gpDollar":525.0,"gpPct":100.0},{"jobNum":"26-0115-ELE","jobName":"The Waverly-Waverly Community Room patio BBQ GFCI and snap cover; GFCI outlets on the exterior walls","rawDiv":"Electrical","divKey":"ELECTRICAL","foreman":"","coord":"Maria Jimenez","estimates":1250.0,"jobCost":347.45,"gpDollar":902.55,"gpPct":72.204},{"jobNum":"26-0303-STR","jobName":"O'NEIL, Ellen-1145 Mountain Gate Rd","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":18866.01,"jobCost":4011.84,"gpDollar":14854.169999999998,"gpPct":78.73509024960762},{"jobNum":"26-0313-PLM-1","jobName":"Empire West-Hydro Jetting Additional Work","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":1595.2,"gpDollar":-1595.2,"gpPct":0.0},{"jobNum":"26-0351-PLM","jobName":"Eight and Grand-Unit 511 Pinhole Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":123.8,"gpDollar":-123.8,"gpPct":0.0},{"jobNum":"26-0353-PLM","jobName":"Theresa Horng-Unit 31k Toilet & Shower Repair","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":1220.0,"jobCost":920.83,"gpDollar":299.16999999999996,"gpPct":24.522131147540982},{"jobNum":"26-0355-STR","jobName":"RAMBHATLA, Savitri-1210 Rancho Rd. REPAIRS","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"","coord":"Maria Jimenez","estimates":0.0,"jobCost":2754.2000000000003,"gpDollar":-2754.2000000000003,"gpPct":0.0},{"jobNum":"26-0371-STR","jobName":"City of Industry-16229 Temple Ave - Mitigation Repairs","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"","coord":"Queta Lopez","estimates":24954.95,"jobCost":1132.02,"gpDollar":23822.93,"gpPct":95.46374566969679},{"jobNum":"26-0378-STR-1","jobName":"RAMBHATLA, Savitri-1210 Rancho Rd.-ADDITIONAL REPAIRS","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Alex Ramirez","coord":"Queta Lopez","estimates":4800.0,"jobCost":401.92,"gpDollar":4398.08,"gpPct":91.62666666666667},{"jobNum":"26-0407-PLM","jobName":"Serrano Development Group-Irrigation Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":5200.0,"jobCost":2171.38,"gpDollar":3028.62,"gpPct":58.24269230769231},{"jobNum":"26-0420-STR","jobName":"San Bernardino Health Center-590 N D St-Punch List","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Alonso Perez","coord":"Maria Jimenez","estimates":0.0,"jobCost":329.52,"gpDollar":-329.52,"gpPct":0.0},{"jobNum":"26-0459-PLM","jobName":"Four Seasons-Water Supply Repair","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":1200.0,"jobCost":1406.56,"gpDollar":-206.55999999999995,"gpPct":-17.213333333333328},{"jobNum":"26-0467-IRVSTR","jobName":"Woodbury Lane Apartment Homes 12-1213 (PO#6000595164)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":807.43,"jobCost":0.0,"gpDollar":807.43,"gpPct":100.0},{"jobNum":"26-0478-WTR","jobName":"Laura Patricia - Four Seasons Unit 201/Common Areas -3/28/26","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Gary Miller JR","coord":"Vanessa Sanchez","estimates":0.0,"jobCost":1508.49,"gpDollar":-1508.49,"gpPct":0.0},{"jobNum":"26-0480-PLM-1","jobName":"Atelier-Gas Lines","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Fernando Hernandez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":990.6400000000001,"gpDollar":-990.6400000000001,"gpPct":0.0},{"jobNum":"26-0486-IRVSTR","jobName":"Rancho Monterey Apartments 10-397 (PO#6000597483)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":4433.95,"jobCost":255.38,"gpDollar":4178.57,"gpPct":94.24035002650008},{"jobNum":"26-0512-STR","jobName":"JFS-Ronald Reagan UCLA Medical Center-Basement Leak (4/02/26)","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Julio Salas","coord":"Maria Jimenez","estimates":219048.0,"jobCost":98449.156,"gpDollar":120598.844,"gpPct":55.05589825061174},{"jobNum":"26-0512-WTR","jobName":"JFS-Ronald Reagan UCLA Medical Center-Basement Leak (4/02/26)","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Gary Miller","coord":"Maria Jimenez","estimates":479417.0,"jobCost":237225.22799999992,"gpDollar":242191.77200000008,"gpPct":50.517977460123454},{"jobNum":"26-0516-PLM","jobName":"Eight and Grand-Unit 4137 PO-179982","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0517-IRVSTR","jobName":"San Remo Villa Apartments 02-0533 (PO#6000591095)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":6223.26,"jobCost":324.13,"gpDollar":5899.13,"gpPct":94.79163653776317},{"jobNum":"26-0526-WTR","jobName":"Mira Vista HOA-Unit 5","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Gary Miller JR","coord":"Vanessa Sanchez","estimates":2465.53,"jobCost":964.4,"gpDollar":1501.13,"gpPct":60.88467793942884},{"jobNum":"26-0532-PLM","jobName":"Russell Allen-Unit 511 Valve Replacement and Pipe Freeze","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":608.93,"gpDollar":-608.93,"gpPct":0.0},{"jobNum":"26-0540-IRVMLD","jobName":"Vista Bella Apartment Homes 05-5308 Garage 57 Only (PO#6000577997)","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"Victor Narvaez","coord":"Bianca Padilla","estimates":1748.12,"jobCost":401.502,"gpDollar":1346.618,"gpPct":77.03235475825458},{"jobNum":"26-0544-IRVMLD","jobName":"Rancho Monterey Apartments 13-443","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"Marcos Jimenez","coord":"Bianca Padilla","estimates":3022.51,"jobCost":2712.8099999999995,"gpDollar":309.7000000000007,"gpPct":10.246450797515996},{"jobNum":"26-0546-IRVSTR-1","jobName":"Las Flores #02-0260 (PO#6000588948)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":4005.11,"jobCost":2130.0,"gpDollar":1875.1100000000001,"gpPct":46.81794008154582},{"jobNum":"26-0548-MLD","jobName":"Marquee Park Place HOA-Unit 304","rawDiv":"Mold Remediation","divKey":"EMERGENCY","foreman":"Edgar Sauceda","coord":"Vanessa Sanchez","estimates":9284.52,"jobCost":417.5,"gpDollar":8867.02,"gpPct":95.50326780490536},{"jobNum":"26-0549-PLM","jobName":"Eight and Grand-Unit 6165 1\" Pex Repair","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":145.98,"gpDollar":-145.98,"gpPct":0.0},{"jobNum":"26-0572-PLM","jobName":"Stevens, Susan-Unit 206 Plumbing Repairs","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":769.0,"gpDollar":-769.0,"gpPct":0.0},{"jobNum":"26-0589-IRVSTR","jobName":"Orchard Hills Apartment Homes 31-3134 (PO#6000594508)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":4299.77,"jobCost":0.0,"gpDollar":4299.77,"gpPct":100.0},{"jobNum":"26-0594-IRVSTR-1","jobName":"Las Flores #11-1123 (PO#6000588952)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":7181.08,"jobCost":597.31,"gpDollar":6583.77,"gpPct":91.6821703699165},{"jobNum":"26-0594-IRVWTR","jobName":"Las Flores #1137","rawDiv":"Irvine Water Mitigation","divKey":"IRVINE","foreman":"Sebastian Maya Rojas","coord":"Bianca Padilla","estimates":3661.18,"jobCost":1717.324,"gpDollar":1943.8559999999998,"gpPct":53.0937020304929},{"jobNum":"26-0594-IRVWTR-2","jobName":"Las Flores #1111 (PO#6000588939)","rawDiv":"Irvine Water Mitigation","divKey":"IRVINE","foreman":"Salvador Mendoza","coord":"Bianca Padilla","estimates":3184.05,"jobCost":1630.77,"gpDollar":1553.2800000000002,"gpPct":48.78315353088049},{"jobNum":"26-0606-WTR","jobName":"GALLES, Heather-1352 Darlington Ave","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"","coord":"Vanessa Sanchez","estimates":0.0,"jobCost":818.88,"gpDollar":-818.88,"gpPct":0.0},{"jobNum":"26-0612-PLM-1","jobName":"Atelier-Unit 612 Pin Hole Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Fernando Hernandez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":1444.65,"gpDollar":-1444.65,"gpPct":0.0},{"jobNum":"26-0612-PLM-2","jobName":"Atelier-Unit 611 Pin Hole Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":418.8,"gpDollar":-418.8,"gpPct":0.0},{"jobNum":"26-0617-IRVSTR","jobName":"Villa Coronado Apartment Homes 14-498 (PO#6000599277)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":1812.26,"jobCost":0.0,"gpDollar":1812.26,"gpPct":100.0},{"jobNum":"26-0620-IRVSTR","jobName":"Dartmouth Court Apartments 703-0962 (PO#6000597500)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":1184.84,"jobCost":0.0,"gpDollar":1184.84,"gpPct":100.0},{"jobNum":"26-0624-WTR","jobName":"Serrano Development Group-Water Intrusion","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Paulino Gonzalez","coord":"Maria Jimenez","estimates":0.0,"jobCost":358.0,"gpDollar":-358.0,"gpPct":0.0},{"jobNum":"26-0634-PLM","jobName":"Serrano-4th Floor Women's Restroom","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Jorge Sanchez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":77.75,"gpDollar":-77.75,"gpPct":0.0},{"jobNum":"26-0643-STR","jobName":"Bellwether Main Office","rawDiv":"Structure","divKey":"STRUCTURE","foreman":"Jesus Munoz","coord":"Queta Lopez","estimates":0.0,"jobCost":1121.29,"gpDollar":-1121.29,"gpPct":0.0},{"jobNum":"26-0651-IRVSTR","jobName":"Northwood Park Apartments 22-252 (PO#6000596963)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":1612.52,"jobCost":0.0,"gpDollar":1612.52,"gpPct":100.0},{"jobNum":"26-0652-PLM","jobName":"San Bernardino Health Center-590 N D Street - Odor Inspection","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":600.88,"gpDollar":-600.88,"gpPct":0.0},{"jobNum":"26-0655-IRVSTR","jobName":"Vista Bella Apartment Homes 07-7213 (PO#6000596972 )","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":2090.42,"jobCost":0.0,"gpDollar":2090.42,"gpPct":100.0},{"jobNum":"26-0656-MNT","jobName":"Rambhatla, Savitri- Powder Room Toilet Repair","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"","coord":"Itzel Flores","estimates":0.0,"jobCost":148.94,"gpDollar":-148.94,"gpPct":0.0},{"jobNum":"26-0680-WTR","jobName":"TAMBURO, Frank-71 Las Lomas Road (4/25/26)","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Kevin Barajas","coord":"Vanessa Sanchez","estimates":0.0,"jobCost":880.4,"gpDollar":-880.4,"gpPct":0.0},{"jobNum":"26-0682-PLM-1","jobName":"Atelier-5th Floor Gym Water Dispenser","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0683-WTR","jobName":"MARTINEZ, Angel-1102 Calle Amapola","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Gary Miller","coord":"Vanessa Sanchez","estimates":0.0,"jobCost":442.45399999999995,"gpDollar":-442.45399999999995,"gpPct":0.0},{"jobNum":"26-0685-IRVSTR","jobName":"Las Flores #173","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":1021.94,"jobCost":0.0,"gpDollar":1021.94,"gpPct":100.0},{"jobNum":"26-0687-IRVSTR","jobName":"Las Flores #159","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":2297.54,"jobCost":0.0,"gpDollar":2297.54,"gpPct":100.0},{"jobNum":"26-0688-IRVPLM","jobName":"Turtle Ridge #986","rawDiv":"Irvine Plumbing","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":0.0,"jobCost":147.8,"gpDollar":-147.8,"gpPct":0.0},{"jobNum":"26-0689-PLM","jobName":"Serrano-1425 Men and Women Sloan Valve Reapair","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":128.07999999999998,"gpDollar":-128.07999999999998,"gpPct":0.0},{"jobNum":"26-0694-IRVMLD","jobName":"Cedar Creek Apartments 10-107 OC4 PDP (PO#6000595592 & PO#6000596959)","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"Salvador Mendoza","coord":"Bianca Padilla","estimates":5586.75,"jobCost":0.0,"gpDollar":5586.75,"gpPct":100.0},{"jobNum":"26-0710-IRVPLM","jobName":"Turtle Ridge #961 Replace toilet wax ring (PO#6000595853)","rawDiv":"Irvine Plumbing","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":0.0,"jobCost":108.0,"gpDollar":-108.0,"gpPct":0.0},{"jobNum":"26-0717-PLM","jobName":"Javier Chavez-Kitchen Sink Stoppage","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Fernando Hernandez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":159.5,"gpDollar":-159.5,"gpPct":0.0},{"jobNum":"26-0727-IRVSTR","jobName":"Serrano Apartment Homes 08-0834 (PO#6000600206)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":746.45,"jobCost":0.0,"gpDollar":746.45,"gpPct":100.0},{"jobNum":"26-0728-IRVMLD","jobName":"Las Flores 07-0705 (PO#6000599334)","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"Salvador Mendoza","coord":"Bianca Padilla","estimates":4431.38,"jobCost":719.0,"gpDollar":3712.38,"gpPct":83.77480604236152},{"jobNum":"26-0729-IRVMLD","jobName":"Turtle Rock Canyon 10-146","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":3456.09,"jobCost":0.0,"gpDollar":3456.09,"gpPct":100.0},{"jobNum":"26-0730-IRVMLD","jobName":"Northwood Place 024-0512","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"Alfredo Torres","coord":"Bianca Padilla","estimates":5403.34,"jobCost":66.0,"gpDollar":5337.34,"gpPct":98.77853327756536},{"jobNum":"26-0731-PLM","jobName":"Serrano-5860 Uplander Toilet Sloan Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":429.99,"gpDollar":-429.99,"gpPct":0.0},{"jobNum":"26-0733-PLM","jobName":"Eight and Grand-Cold Side WH System","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":3335.0,"jobCost":541.5899999999999,"gpDollar":2793.41,"gpPct":83.76041979010495},{"jobNum":"26-0733-PLM-1","jobName":"Eight and Grand-Hot Side WH System","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":3335.0,"jobCost":402.11,"gpDollar":2932.89,"gpPct":87.94272863568216},{"jobNum":"26-0734-IRVMLD","jobName":"Turtle Ridge #303 (PO#6000597295)","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"Paulino Gonzalez","coord":"Bianca Padilla","estimates":0.0,"jobCost":140.0,"gpDollar":-140.0,"gpPct":0.0},{"jobNum":"26-0735-IRVPLM","jobName":"Turtle Ridge #410 (PO#6000595959)","rawDiv":"Irvine Plumbing","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":0.0,"jobCost":1060.6799999999998,"gpDollar":-1060.6799999999998,"gpPct":0.0},{"jobNum":"26-0745-IRVMLD","jobName":"Las Flores #554 WH Closet","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":4504.61,"jobCost":495.0,"gpDollar":4009.6099999999997,"gpPct":89.0112573563527},{"jobNum":"26-0746-IRVMLD","jobName":"Las Flores Garage #110","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":3601.11,"jobCost":0.0,"gpDollar":3601.11,"gpPct":100.0},{"jobNum":"26-0747-IRVMLD","jobName":"Las Flores Garage #109","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":3131.65,"jobCost":0.0,"gpDollar":3131.65,"gpPct":100.0},{"jobNum":"26-0748-IRVPLM","jobName":"Turtle Ridge #245 (PO#6000597287)","rawDiv":"Irvine Plumbing","divKey":"IRVINE","foreman":"Sebastian Maya Rojas","coord":"Bianca Padilla","estimates":0.0,"jobCost":401.8,"gpDollar":-401.8,"gpPct":0.0},{"jobNum":"26-0748-IRVSTR","jobName":"Turtle Ridge #245","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0752-IRVSTR","jobName":"Turtle Ridge #901 (PO#6000602644)","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":1849.3,"jobCost":0.0,"gpDollar":1849.3,"gpPct":100.0},{"jobNum":"26-0752-IRVWTR","jobName":"Turtle Ridge #901 (PO#6000601783)","rawDiv":"Irvine Water Mitigation","divKey":"IRVINE","foreman":"Marcos Jimenez","coord":"Bianca Padilla","estimates":1730.99,"jobCost":226.6,"gpDollar":1504.39,"gpPct":86.90922535658785},{"jobNum":"26-0758-PLM","jobName":"Serrano-590 N D St.-Men ADA Stall","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0760-IRVMLD","jobName":"Vista Bella 03-3118","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"Paulino Gonzalez","coord":"Bianca Padilla","estimates":4718.42,"jobCost":210.0,"gpDollar":4508.42,"gpPct":95.54935762395039},{"jobNum":"26-0761-IRVMLD","jobName":"Vista Bella 03-3120 (PO#6000602515)","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":4020.36,"jobCost":0.0,"gpDollar":4020.36,"gpPct":100.0},{"jobNum":"26-0765-IRVMLD","jobName":"Santa Maria 04-204 (PO#6000603732)","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":4606.13,"jobCost":0.0,"gpDollar":4606.13,"gpPct":100.0},{"jobNum":"26-0768-MNT","jobName":"El Molino Terrace- Garage Leak (Water Test)","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"","coord":"Itzel Flores","estimates":1650.0,"jobCost":0.0,"gpDollar":1650.0,"gpPct":100.0},{"jobNum":"26-0772-ELE","jobName":"Eighth and Grand-2nd Floor Pool Courtyard Lights","rawDiv":"Electrical","divKey":"ELECTRICAL","foreman":"Jesus Gutierrez","coord":"Maria Jimenez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0774-MNT","jobName":"Marquee - Debris Removal","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"","coord":"Itzel Flores","estimates":4650.0,"jobCost":0.0,"gpDollar":4650.0,"gpPct":100.0},{"jobNum":"26-0780-MLD","jobName":"BOND, Isabella-The Addison Unit 110-Guest Bathroom","rawDiv":"Mold Remediation","divKey":"EMERGENCY","foreman":"","coord":"Vanessa Sanchez","estimates":3327.27,"jobCost":0.0,"gpDollar":3327.27,"gpPct":100.0},{"jobNum":"26-0782-IRVMLD","jobName":"Rancho Mariposa Apartments 03-0321","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"","coord":"Bianca Padilla","estimates":3668.76,"jobCost":0.0,"gpDollar":3668.76,"gpPct":100.0},{"jobNum":"26-0783-PLM-1","jobName":"Eight and Grand-Unit 3102 Sink Stoppage","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Giovanni Lopez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":450.0,"gpDollar":-450.0,"gpPct":0.0},{"jobNum":"26-0784-IRVMLD","jobName":"Northwood Place Apartments 100-1165","rawDiv":"Irvine Mold Remediation","divKey":"IRVINE","foreman":"Paulino Gonzalez","coord":"Bianca Padilla","estimates":6407.76,"jobCost":694.9,"gpDollar":5712.860000000001,"gpPct":89.15533665430665},{"jobNum":"26-0787-PLM","jobName":"Metro 417-553 Return Pinhole Bathroom Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":69.19999999999999,"gpDollar":-69.19999999999999,"gpPct":0.0},{"jobNum":"26-0787-PLM-1","jobName":"Metro 417-4\" Fire Main Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":69.19999999999999,"gpDollar":-69.19999999999999,"gpPct":0.0},{"jobNum":"26-0787-PLM-2","jobName":"Metro 417-Sump Pump Pit","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":69.19999999999999,"gpDollar":-69.19999999999999,"gpPct":0.0},{"jobNum":"26-0788-MNT","jobName":"Royal Palms / Jessica. G / Replace closet doors","rawDiv":"Maintenance","divKey":"MAINTENANCE","foreman":"","coord":"Itzel Flores","estimates":1715.0,"jobCost":259.25,"gpDollar":1455.75,"gpPct":84.88338192419825},{"jobNum":"26-0789-PLM","jobName":"Eight and Grand-Booster Pump Maintenance","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"","coord":"Marcella Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0790-PLM","jobName":"Burlington Family Apartments-Main Stack Stoppage","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0790-PLM-1","jobName":"Burlington Family Apartments-Unit 106 Tub Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":94.8,"gpDollar":-94.8,"gpPct":0.0},{"jobNum":"26-0790-PLM-2","jobName":"Burlington Family Apartments-Kitchen Sink Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Santiago Rico","coord":"Marcella Sanchez","estimates":0.0,"jobCost":90.8,"gpDollar":-90.8,"gpPct":0.0},{"jobNum":"26-0791-PLM","jobName":"Eight and Grand-Unit 3153 Kitchen Stoppage","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Giovanni Lopez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":180.0,"gpDollar":-180.0,"gpPct":0.0},{"jobNum":"26-0794-PLM","jobName":"Atelier-5th Floor Pool Relief Valve","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Alonso Perez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0798-PLM","jobName":"Atelier-Unit 3001 Pipe Noise Complaint","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Alonso Perez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":164.0,"gpDollar":-164.0,"gpPct":0.0},{"jobNum":"26-0800-IRVSTR","jobName":"Las Flores #314","rawDiv":"Irvine Structure","divKey":"IRVINE","foreman":"Juan Casillas","coord":"Bianca Padilla","estimates":457.94,"jobCost":0.0,"gpDollar":457.94,"gpPct":100.0},{"jobNum":"26-0803-WTR-1","jobName":"Girgis, George-Marquee Unit 1704(Responsible for Unit 1604)","rawDiv":"Water Mitigation","divKey":"EMERGENCY","foreman":"Gary Miller JR","coord":"Vanessa Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0812-PLM","jobName":"Atelier-Hose Bib","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Alonso Perez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0},{"jobNum":"26-0814-PLM","jobName":"Peartree-512 Derby Rd Ceiling Leak","rawDiv":"Plumbing","divKey":"PLUMBING","foreman":"Giovanni Lopez","coord":"Marcella Sanchez","estimates":0.0,"jobCost":0.0,"gpDollar":0.0,"gpPct":0.0}]</script>
-<script type="application/json" id="wip-meta">{"updated":"5/11/2026 8:34 PM","jobCount":147}</script>
+<script type="application/json" id="wip-meta">{"updated":"5/12/2026 2:11 AM","jobCount":147}</script>
 </head>
 <body>
 
@@ -211,12 +211,12 @@ body{background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,
 
   <div class="filter-bar">
     <div class="flag-group">
-      <button class="flag-tog all active" id="flagAll"   onclick="setFlag('all')">All Jobs</button>
-      <button class="flag-tog watch"      id="flagWatch" onclick="setFlag('watch')">⚠️ Below 35%</button>
-      <button class="flag-tog alert"      id="flagAlert" onclick="setFlag('alert')">🚨 Below 20%</button>
+      <button class="flag-tog all active" id="flagAll" onclick="setFlag('all')">All Jobs</button>
+      <button class="flag-tog watch" id="flagWarning" onclick="setFlag('warning')">⚠️ Warning</button>
+      <button class="flag-tog alert" id="flagOver" onclick="setFlag('over')">🚨 Over Budget</button>
     </div>
     <input class="search-inp" id="searchInp" type="text" placeholder="Search job or name…" oninput="applyFilters()">
-    <div class="filter-info" id="filterInfo"></div>
+    <div class="filter-info" id="filterInfo">Showing <span>0</span> of 0 jobs</div>
   </div>
 
   <div id="foremanSections"></div>
@@ -249,276 +249,578 @@ body{background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,
 // ── INJECTED DATA ─────────────────────────────────────────────────────────────
 // This block is replaced by the CoWork publisher script on each run.
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
+// ── DIVISION CEILINGS (single source of truth — keep in sync with division_ceilings.csv) ──
+// Each subdivision (raw Cotality division string) gets a cost ceiling %.
+// Ceiling is the MAX % of sold amount allowed to spend on costs.
+// e.g. Structure at 0.55 means costs must stay at or below 55% of sold amount.
+const SUBDIV_CEILINGS = {
+  'Structure':               0.55,
+  'Fire Restoration':        0.55,
+  'Consulting':              0.50,
+  'Upsales':                 0.45,
+  'Water Mitigation':        0.25,
+  'Mold Remediation':        0.35,
+  'Fire Mitigation':         0.90,  // Pure subcontractor pass-through; CELCO earns 10% override
+  'Contents':                0.45,
+  'Abatement':               0.60,
+  'Cleaning':                0.50,
+  'Roof Tarp':               0.40,
+  'Temp Services':           0.40,
+  'Plumbing':                0.55,
+  'Residential Plumbing':    0.55,
+  'Electrical':              0.55,
+  'Maintenance':             0.70,
+  'Maint Work Order':        0.60,
+  'Maint Insp PMP':          0.50,
+  'Irvine Mold Remediation': 0.25,
+  'Irvine Structure':        0.65,
+  'Irvine Water Mitigation': 0.25,
+  'Irvine Plumbing':         0.65
+};
+
+// Case-insensitive ceiling lookup keyed by lowercased raw division string.
+const SUBDIV_CEILINGS_LC = {};
+Object.keys(SUBDIV_CEILINGS).forEach(function(k){ SUBDIV_CEILINGS_LC[k.toLowerCase()] = SUBDIV_CEILINGS[k]; });
+
+function ceilingForSubdiv(raw) {
+  if (!raw) return null;
+  var c = SUBDIV_CEILINGS_LC[String(raw).toLowerCase().trim()];
+  return (c === undefined) ? null : c;
+}
+
+// ── DIVISION MAPPING (subdivision → parent division) ─────────────────────────
+// Returns the canonical Division key for a raw subdivision string from the report.
+// Unknown subdivisions return '__UNKNOWN__' (surfaced as warning).
+// NOTE: 'upsales' is correctly mapped to STRUCTURE; intentionally NOT in KNOWN_INTERNAL.
+const KNOWN_INTERNAL = ['supplement','inventory','labor','vehicles','warehouse','warranty'];
+
+function classifyDivision(raw) {
+  const d = (raw || '').toLowerCase().trim();
+  if (!d) return null;
+  // Irvine — must check before generic plumbing/mold/water
+  if (d.includes('irv')) return 'IRVINE';
+  // Electrical
+  if (d.includes('electr')) return 'ELECTRICAL';
+  // Maintenance (catches Maintenance, Maint Work Order, Maint Insp PMP)
+  if (d.includes('maint')) return 'MAINTENANCE';
+  // Plumbing (non-Irvine already excluded above; catches Residential Plumbing)
+  if (d.includes('plumb')) return 'PLUMBING';
+  // Emergency Services
+  if (d === 'water mitigation' || d === 'mold remediation' ||
+      d === 'fire mitigation' || d === 'contents' || d === 'abatement' ||
+      d === 'cleaning' || d === 'roof tarp' || d === 'temp services') return 'EMERGENCY';
+  // Structure (includes Upsales, Fire Restoration, Consulting)
+  if (d === 'structure' || d === 'upsales' || d === 'fire restoration' ||
+      d === 'consulting') return 'STRUCTURE';
+  // Known internal / administrative — silently exclude
+  if (KNOWN_INTERNAL.some(k => d.includes(k))) return '__INTERNAL__';
+  return '__UNKNOWN__';
+}
+
+// ── STATE ────────────────────────────────────────────────────────────────────
 let allJobs = [], filteredJobs = [], currentDiv = 'ALL', flagMode = 'all';
 const C = {great:'#4ade80', ok:'#ff6a00', watch:'#facc15', alert:'#f87171'};
 
-// ── BOOT ──────────────────────────────────────────────────────────────────────
+// ── BUDGET STATUS TIER (per-job) ─────────────────────────────────────────────
+// Inputs: cost% and ceiling%. Output: 'over' | 'warning' | 'on' | 'na'
+// Warning band = within 10% of the ceiling (e.g. ceiling 50% → warning at 45%+).
+// Returns 'na' if job has no estimate (cost% undefined) or no ceiling (unknown subdiv).
+function budgetTier(costPct, ceilingPct) {
+  if (ceilingPct === null || ceilingPct === undefined) return 'na';
+  if (costPct === null || costPct === undefined || !isFinite(costPct)) return 'na';
+  if (costPct > ceilingPct) return 'over';
+  if (costPct >= ceilingPct * 0.90) return 'warning';
+  return 'on';
+}
+
+function tierColor(tier) {
+  if (tier === 'on') return C.great;
+  if (tier === 'warning') return C.watch;
+  if (tier === 'over') return C.alert;
+  return '#333';
+}
+
+// ── DROP / FILE INPUT ────────────────────────────────────────────────────────
+// (Only present in the interactive uploader, not the published template)
+(function attachDropHandlers(){
+  const dropCard = document.getElementById('dropCard');
+  if (!dropCard) return; // published view has no drop zone
+  dropCard.addEventListener('dragover', e => { e.preventDefault(); dropCard.style.borderColor='#ff6a00'; });
+  dropCard.addEventListener('dragleave', () => { dropCard.style.borderColor=''; });
+  dropCard.addEventListener('drop', e => { e.preventDefault(); dropCard.style.borderColor=''; handleFile(e.dataTransfer.files[0]); });
+  document.getElementById('fileInput').addEventListener('change', e => handleFile(e.target.files[0]));
+})();
+
+function handleFile(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    const wb = XLSX.read(e.target.result, {type:'array'});
+    parseData(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''}), file.name);
+  };
+  r.readAsArrayBuffer(file);
+}
+
+function parseData(rows, fname) {
+  const unknownDivs = {};
+  allJobs = [];
+
+  rows.forEach(r => {
+    const jobNum = (r['Job Number'] || '').toString().trim();
+    if (!jobNum) return;
+    const rawDiv = (r['Division'] || '').toString().trim();
+    const divKey = classifyDivision(rawDiv);
+    if (!divKey || divKey === '__INTERNAL__') return;
+    if (divKey === '__UNKNOWN__') {
+      unknownDivs[rawDiv] = (unknownDivs[rawDiv] || 0) + 1;
+    }
+    const est  = parseFloat(r['Total Estimates']) || 0;
+    const cost = parseFloat(r['Total Job Cost'])  || 0;
+    const ceiling = ceilingForSubdiv(rawDiv);
+    const costPct = est > 0 ? (cost / est) : null;
+    const ceilingDollars = (ceiling !== null && est > 0) ? est * ceiling : null;
+    const varianceDollars = (ceilingDollars !== null) ? ceilingDollars - cost : null;
+    const tier = budgetTier(costPct, ceiling);
+
+    allJobs.push({
+      jobNum,
+      jobName:   (r['Job Name']    || '').toString().trim(),
+      rawDiv,
+      divKey:    divKey === '__UNKNOWN__' ? '__UNKNOWN__' : divKey,
+      foreman:   (r['Foreperson']  || '').toString().trim().replace(/\s+/g,' '),
+      coord:     (r['Coordinator'] || '').toString().trim(),
+      estimates: est,
+      jobCost:   cost,
+      gpDollar:  est - cost,
+      gpPct:     parseFloat(r['Working Gross Profit(%)']) || 0,
+      ceiling:   ceiling,
+      costPct:   costPct,
+      ceilingDollars: ceilingDollars,
+      varianceDollars: varianceDollars,
+      tier:      tier
+    });
+  });
+
+  // Unrecognized banner
+  const unrecKeys = Object.keys(unknownDivs);
+  const banner = document.getElementById('unrecBanner');
+  if (banner) {
+    if (unrecKeys.length) {
+      banner.classList.add('show');
+      document.getElementById('unrecList').innerHTML = unrecKeys.map(k =>
+        `<div>→ <span>${k}</span> &nbsp;(${unknownDivs[k]} job${unknownDivs[k]>1?'s':''})</div>`
+      ).join('');
+    } else {
+      banner.classList.remove('show');
+    }
+  }
+
+  const statusDot = document.getElementById('statusDot');
+  if (statusDot) statusDot.className = 'status-dot green';
+  const statusText = document.getElementById('statusText');
+  if (statusText) {
+    statusText.className  = 'status-text green';
+    statusText.textContent = fname + ' · ' + allJobs.length + ' jobs';
+  }
+  const dropCardEl = document.getElementById('dropCard');
+  if (dropCardEl) dropCardEl.classList.add('loaded');
+  const hdrSub = document.getElementById('hdrSub');
+  if (hdrSub) hdrSub.textContent = allJobs.length + ' jobs loaded · ' + fname;
+  // Reset filter state
+  flagMode = 'all';
+  ['All','Warning','Over'].forEach(k => {
+    const el = document.getElementById('flag'+k);
+    if (el) el.classList.remove('active');
+  });
+  const flagAllBtn = document.getElementById('flagAll');
+  if (flagAllBtn) flagAllBtn.classList.add('active');
+  const searchInpEl = document.getElementById('searchInp');
+  if (searchInpEl) searchInpEl.value = '';
+  filteredJobs = [...allJobs];
+  const filterInfoEl = document.getElementById('filterInfo');
+  if (filterInfoEl) filterInfoEl.innerHTML = 'Showing <span>' + filteredJobs.length + '</span> of ' + allJobs.length + ' jobs';
+  renderSummary();
+  renderSections();
+  const emptyState = document.getElementById('emptyState');
+  if (emptyState) emptyState.style.display = 'none';
+  const dash = document.getElementById('dashboard');
+  if (dash) dash.style.display = 'block';
+  const pubBtn = document.getElementById('publishBtn');
+  if (pubBtn) pubBtn.style.display = 'inline-block';
+  if (typeof toast === 'function') toast('✓ ' + allJobs.length + ' jobs loaded');
+}
+
+function clearData() {
+  allJobs = [];
+  const statusDot = document.getElementById('statusDot');
+  if (statusDot) statusDot.className = 'status-dot';
+  const statusText = document.getElementById('statusText');
+  if (statusText) { statusText.className  = 'status-text'; statusText.textContent = 'Not loaded'; }
+  const dropCardEl = document.getElementById('dropCard');
+  if (dropCardEl) dropCardEl.classList.remove('loaded');
+  const pubBtn = document.getElementById('publishBtn');
+  if (pubBtn) pubBtn.style.display = 'none';
+  const emptyState = document.getElementById('emptyState');
+  if (emptyState) emptyState.style.display = '';
+  const dash = document.getElementById('dashboard');
+  if (dash) dash.style.display = 'none';
+  const banner = document.getElementById('unrecBanner');
+  if (banner) banner.classList.remove('show');
+}
+
+// ── DIVISION SELECTOR ────────────────────────────────────────────────────────
+function setDiv(btn) {
+  currentDiv = btn.dataset.div;
+  document.querySelectorAll('.div-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const hdrSub = document.getElementById('hdrSub');
+  if (hdrSub) {
+    hdrSub.textContent = currentDiv === 'ALL'
+      ? (allJobs.length ? allJobs.length + ' jobs loaded — All Divisions' : 'All Divisions')
+      : btn.textContent.trim() + ' Division';
+  }
+  applyFilters();
+}
+
+// ── FLAGS (Warning / Over Budget) ────────────────────────────────────────────
+function setFlag(m) {
+  flagMode = m;
+  ['All','Warning','Over'].forEach(k => {
+    const el = document.getElementById('flag'+k);
+    if (el) el.classList.remove('active');
+  });
+  const target = document.getElementById('flag' + m.charAt(0).toUpperCase() + m.slice(1));
+  if (target) target.classList.add('active');
+  applyFilters();
+}
+
+// ── FILTER ENGINE ────────────────────────────────────────────────────────────
+function applyFilters() {
+  const searchEl = document.getElementById('searchInp');
+  const q = (searchEl ? searchEl.value : '').toLowerCase();
+  filteredJobs = allJobs.filter(j => {
+    if (currentDiv !== 'ALL' && j.divKey !== currentDiv) return false;
+    if (flagMode === 'warning' && j.tier !== 'warning') return false;
+    if (flagMode === 'over' && j.tier !== 'over') return false;
+    if (q && !j.jobName.toLowerCase().includes(q) && !j.jobNum.toLowerCase().includes(q) &&
+        !j.foreman.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const filterInfoEl = document.getElementById('filterInfo');
+  if (filterInfoEl) {
+    filterInfoEl.innerHTML =
+      'Showing <span>' + filteredJobs.length + '</span> of ' + allJobs.length + ' jobs';
+  }
+  renderSummary();
+  renderSections();
+}
+
+// ── SUMMARY / KPI CARDS / DONUT ──────────────────────────────────────────────
+// On-Budget Rate (inclusive) = (on + warning) / graded
+// $ Variance = sum of (ceilingDollars - cost) across graded jobs
+// Graded = jobs with both an estimate AND a known ceiling.
+// Ungraded jobs (unknown subdiv or no estimate) are excluded from the rate.
+function renderSummary() {
+  // Graded subset: only jobs with both estimates and a known ceiling.
+  const graded = filteredJobs.filter(j => j.tier !== 'na');
+  const onCount = graded.filter(j => j.tier === 'on').length;
+  const warnCount = graded.filter(j => j.tier === 'warning').length;
+  const overCount = graded.filter(j => j.tier === 'over').length;
+  const ungraded = filteredJobs.length - graded.length;
+
+  const onBudgetRate = graded.length > 0 ? ((onCount + warnCount) / graded.length * 100) : 0;
+  const varianceTotal = graded.reduce((s, j) => s + (j.varianceDollars || 0), 0);
+
+  const rateClass = onBudgetRate >= 80 ? 'green' : onBudgetRate >= 60 ? 'orange' : onBudgetRate >= 40 ? 'yellow' : 'red';
+  const rateBarCol = onBudgetRate >= 80 ? C.great : onBudgetRate >= 60 ? C.ok : onBudgetRate >= 40 ? C.watch : C.alert;
+  const varClass = varianceTotal >= 0 ? 'green' : 'red';
+  const varBarCol = varianceTotal >= 0 ? C.great : C.alert;
+
+  const kpiLeftEl = document.getElementById('kpiLeft');
+  if (kpiLeftEl) {
+    kpiLeftEl.innerHTML =
+      `<div class="kpi"><div class="kpi-bar" style="background:${rateBarCol}"></div>
+        <div class="kpi-lbl">On-Budget Rate</div>
+        <div class="kpi-val ${rateClass}">${onBudgetRate.toFixed(1)}%</div>
+        <div class="kpi-note">${graded.length} graded job${graded.length!==1?'s':''}${ungraded>0?' · '+ungraded+' ungraded':''}</div></div>` +
+      `<div class="kpi"><div class="kpi-bar" style="background:${varBarCol}"></div>
+        <div class="kpi-lbl" title="+ = under budget · − = over budget">$ Variance vs Budget</div>
+        <div class="kpi-val ${varClass}">${varianceTotal>=0?'+':'-'}${fmt$(Math.abs(varianceTotal))}</div>
+        <div class="kpi-note">${varianceTotal>=0?'Under':'Over'} division budget</div></div>`;
+  }
+
+  const kpiRightEl = document.getElementById('kpiRight');
+  if (kpiRightEl) {
+    kpiRightEl.innerHTML =
+      `<div class="kpi kpi-clickable" onclick="openDrilldown('warning')">
+        <div class="kpi-bar" style="background:#facc15"></div>
+        <div class="kpi-lbl">Warning ⚠️</div>
+        <div class="kpi-val yellow">${warnCount}</div>
+        <div class="kpi-note">Within 10% of budget · tap to drill</div></div>` +
+      `<div class="kpi kpi-clickable" onclick="openDrilldown('over')">
+        <div class="kpi-bar" style="background:#f87171"></div>
+        <div class="kpi-lbl">Over Budget 🚨</div>
+        <div class="kpi-val red">${overCount}</div>
+        <div class="kpi-note">Past budget · tap to drill</div></div>`;
+  }
+
+  // Donut: 3 segments (over / warning / on), plus optional ungraded grey wedge
+  const b = {on: onCount, warning: warnCount, over: overCount, na: ungraded};
+  const T = Math.max(b.on + b.warning + b.over + b.na, 1), circ = 314.16;
+  let off = 0;
+  // Order: over (red), warning (yellow), on (green), na (grey-rendered as ok stroke since slot remains)
+  const segs = [
+    {id:'d-alert', val:b.over},
+    {id:'d-watch', val:b.warning},
+    {id:'d-great', val:b.on},
+    {id:'d-ok',    val:b.na}
+  ];
+  segs.forEach(s => {
+    const seg = (s.val / T) * circ;
+    const el  = document.getElementById(s.id);
+    if (el) {
+      el.setAttribute('stroke-dasharray',  seg + ' ' + (circ - seg));
+      el.setAttribute('stroke-dashoffset', -off);
+    }
+    off += seg;
+  });
+  // Color the "na" slot grey at runtime (it uses the d-ok slot which was originally orange)
+  const dOk = document.getElementById('d-ok');
+  if (dOk) dOk.setAttribute('stroke', '#3a3a3a');
+
+  const donutTotalEl = document.getElementById('donutTotal');
+  if (donutTotalEl) donutTotalEl.textContent = filteredJobs.length;
+  const donutLegendEl = document.getElementById('donutLegend');
+  if (donutLegendEl) {
+    donutLegendEl.innerHTML =
+      `<div class="donut-leg-item"><div class="donut-leg-dot" style="background:${C.great}"></div>On Budget (${b.on})</div>` +
+      `<div class="donut-leg-item"><div class="donut-leg-dot" style="background:${C.watch}"></div>Warning (${b.warning})</div>` +
+      `<div class="donut-leg-item"><div class="donut-leg-dot" style="background:${C.alert}"></div>Over (${b.over})</div>` +
+      (b.na > 0 ? `<div class="donut-leg-item"><div class="donut-leg-dot" style="background:#3a3a3a"></div>Ungraded (${b.na})</div>` : '');
+  }
+}
+
+// ── FOREMAN SECTIONS ─────────────────────────────────────────────────────────
+// Per-foreman bar = On-Budget Rate (inclusive) for that foreman's graded jobs.
+// Per-foreman dollar value = sum of $ Variance (under = green, over = red).
+function renderSections() {
+  const map = {};
+  filteredJobs.forEach(j => {
+    const k = j.foreman && j.foreman.trim() && j.foreman !== ' ' ? j.foreman : '__unassigned__';
+    if (!map[k]) map[k] = [];
+    map[k].push(j);
+  });
+  // Sort: lowest On-Budget Rate first (most urgent at top); unassigned last
+  const sorted = Object.entries(map).sort((a,b) => {
+    if (a[0]==='__unassigned__') return 1;
+    if (b[0]==='__unassigned__') return -1;
+    return foremanOnBudgetRate(a[1]) - foremanOnBudgetRate(b[1]);
+  });
+  const container = document.getElementById('foremanSections');
+  if (!sorted.length) {
+    if (container) container.innerHTML = '<div class="no-results">No jobs match the current filters.</div>';
+    return;
+  }
+  let html = '';
+  sorted.forEach(([name, jobs]) => {
+    const unassigned = name === '__unassigned__';
+    const dname = unassigned ? 'Unassigned / No Foreperson' : name;
+    const rate  = foremanOnBudgetRate(jobs);
+    const variance = jobs.reduce((s,j) => s + (j.varianceDollars || 0), 0);
+    const gradedCount = jobs.filter(j => j.tier !== 'na').length;
+    const col   = unassigned ? '#555' : (rate>=80?C.great:rate>=60?C.ok:rate>=40?C.watch:C.alert);
+    const avBg  = unassigned ? '#1a1a1a' : col;
+    const avFg  = unassigned ? '#555' : '#000';
+    const init  = unassigned ? '?' : name.split(' ').filter(Boolean).map(p=>p[0]).join('').substring(0,2).toUpperCase();
+    const overs    = jobs.filter(j => j.tier === 'over').length;
+    const warnings = jobs.filter(j => j.tier === 'warning').length;
+    const af = overs    ? `<span style="font-size:10px;background:rgba(248,113,113,0.12);color:#f87171;border-radius:4px;padding:2px 7px;">🚨 ${overs}</span>` : '';
+    const wf = warnings ? `<span style="font-size:10px;background:rgba(250,204,21,0.1);color:#facc15;border-radius:4px;padding:2px 7px;">⚠️ ${warnings}</span>` : '';
+    // Job sort: over → warning → on → na (ungraded last); within tier, worst cost% margin first
+    const sortedJobs = [...jobs].sort((a,b) => {
+      const order = {over:0, warning:1, on:2, na:3};
+      if (order[a.tier] !== order[b.tier]) return order[a.tier] - order[b.tier];
+      if (a.tier === 'na' || b.tier === 'na') return 0;
+      // Inside a tier: largest overshoot first for over; closest-to-ceiling first for warning; smallest margin first for on
+      const aMargin = a.ceiling - a.costPct; // positive = under, negative = over
+      const bMargin = b.ceiling - b.costPct;
+      return aMargin - bMargin;
+    });
+    const varianceStr = (variance >= 0 ? '+' : '-') + fmt$(Math.abs(variance));
+    const varianceCol = variance >= 0 ? C.great : C.alert;
+    html += `<div class="foreman-section">
+      <div class="foreman-header" onclick="toggle(this)">
+        <div class="foreman-initials" style="background:${avBg};color:${avFg}">${init}</div>
+        <div class="foreman-name-wrap">
+          <div class="foreman-name">${dname} ${af}${wf}</div>
+          <div class="foreman-meta">${jobs.length} job${jobs.length!==1?'s':''} · ${gradedCount} graded · <span style="color:${varianceCol}">${varianceStr}</span> vs budget</div>
+        </div>
+        <div class="foreman-bar-wrap">
+          <div class="foreman-bar-track"><div class="foreman-bar-fill" style="width:${Math.min(Math.max(unassigned?0:rate,0),100)}%;background:${col}"></div></div>
+          <div class="foreman-bar-pct" style="color:${col}">${unassigned||gradedCount===0?'—':rate.toFixed(0)+'% on'}</div>
+        </div>
+        <div class="foreman-gp-val" style="color:${col}">${unassigned||gradedCount===0?'—':rate.toFixed(0)+'%'}</div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="foreman-jobs">
+        <table class="job-table"><thead><tr>
+          <th class="stripe"></th>
+          <th>Job #</th><th>Job Name</th><th>Subdivision</th>
+          <th style="text-align:right">Est. Value</th>
+          <th style="text-align:right">Job Cost</th>
+          <th style="text-align:right">Cost %</th>
+          <th style="text-align:right">Budget %</th>
+          <th style="text-align:right">$ Variance</th>
+          <th style="text-align:right">Status</th>
+        </tr></thead><tbody>${sortedJobs.map(jobRow).join('')}</tbody></table>
+      </div></div>`;
+  });
+  if (container) container.innerHTML = html;
+}
+
+function toggle(hdr) {
+  const jobs = hdr.nextElementSibling, chev = hdr.querySelector('.chevron');
+  jobs.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function jobRow(j) {
+  const col = tierColor(j.tier);
+  const costPctStr  = (j.costPct !== null && j.costPct !== undefined) ? (j.costPct*100).toFixed(1)+'%' : '<span style="color:#555">—</span>';
+  const ceilingStr  = (j.ceiling !== null && j.ceiling !== undefined) ? (j.ceiling*100).toFixed(0)+'%' : '<span style="color:#555">—</span>';
+  const varStr      = (j.varianceDollars !== null && j.varianceDollars !== undefined)
+    ? `<span class="dollar-val" style="color:${j.varianceDollars<0?C.alert:'inherit'}">${j.varianceDollars>=0?'+':'-'}${fmt$(Math.abs(j.varianceDollars))}</span>`
+    : '<span style="color:#555">—</span>';
+  return `<tr>
+    <td class="stripe"><div style="width:4px;height:34px;border-radius:2px;background:${col}"></div></td>
+    <td><span class="job-num">${j.jobNum}</span></td>
+    <td><span class="job-name" title="${j.jobName}">${j.jobName||'—'}</span></td>
+    <td><span class="div-pill">${j.rawDiv}</span></td>
+    <td style="text-align:right"><span class="dollar-val">${j.estimates>0?fmt$(j.estimates):'<span style=\"color:#555\">—</span>'}</span></td>
+    <td style="text-align:right"><span class="dollar-val">${j.jobCost>0?fmt$(j.jobCost):'<span style=\"color:#555\">—</span>'}</span></td>
+    <td style="text-align:right">${costPctStr}</td>
+    <td style="text-align:right">${ceilingStr}</td>
+    <td style="text-align:right">${varStr}</td>
+    <td style="text-align:right">${tierBadge(j.tier)}</td>
+  </tr>`;
+}
+
+function tierBadge(tier) {
+  if (tier === 'on')      return '<span class="gp-badge gp-great">On Budget</span>';
+  if (tier === 'warning') return '<span class="gp-badge gp-watch">⚠️ Warning</span>';
+  if (tier === 'over')    return '<span class="gp-badge gp-alert">🚨 Over</span>';
+  return '<span class="gp-badge gp-zero">—</span>';
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function foremanOnBudgetRate(jobs) {
+  const graded = jobs.filter(j => j.tier !== 'na');
+  if (!graded.length) return 0;
+  const ok = graded.filter(j => j.tier === 'on' || j.tier === 'warning').length;
+  return ok / graded.length * 100;
+}
+function fmt$(n) {
+  if (Math.abs(n)>=1000000) return '$'+(n/1000000).toFixed(1)+'M';
+  if (Math.abs(n)>=1000)    return '$'+Math.round(n).toLocaleString();
+  return '$'+Math.round(n);
+}
+
+// ── DRILLDOWN MODAL ─────────────────────────────────────────────────────────
+function openDrilldown(mode) {
+  // mode: 'warning' | 'over'
+  const isOver = mode === 'over';
+  const label  = isOver ? '🚨 Over Budget — Past Budget' : '⚠️ Warning — Within 10% of Budget';
+  const targetTier = isOver ? 'over' : 'warning';
+  const jobs = filteredJobs
+    .filter(j => j.tier === targetTier)
+    .sort((a,b) => {
+      const aM = a.ceiling - a.costPct;
+      const bM = b.ceiling - b.costPct;
+      return aM - bM; // most over (most negative margin) first
+    });
+
+  document.getElementById('modalTitle').textContent = label;
+  document.getElementById('modalSub').textContent =
+    jobs.length + ' job' + (jobs.length!==1?'s':'') + (currentDiv !== 'ALL' ? ' · ' + document.querySelector('.div-btn.active').textContent.trim() : ' · All Divisions');
+
+  let body = '';
+  if (!jobs.length) {
+    body = '<div class="modal-empty">No jobs in this tier. Great shape! ✅</div>';
+  } else {
+    body = `<table class="modal-job-table"><thead><tr>
+      <th></th><th>Cost %</th><th>Budget %</th><th>Job #</th><th>Job Name</th><th>Subdivision</th><th>Foreman</th>
+      <th style="text-align:right">Est. Value</th><th style="text-align:right">$ Variance</th>
+    </tr></thead><tbody>`;
+    jobs.forEach(j => {
+      const icon = j.tier === 'over' ? '🚨' : '⚠️';
+      const badgeCls = j.tier === 'over' ? 'gp-alert' : 'gp-watch';
+      const costPctStr = (j.costPct*100).toFixed(1)+'%';
+      const ceilingStr = (j.ceiling*100).toFixed(0)+'%';
+      body += `<tr>
+        <td style="padding-left:10px">${icon}</td>
+        <td><span class="gp-badge ${badgeCls}">${costPctStr}</span></td>
+        <td style="font-size:11px;color:#aaa">${ceilingStr}</td>
+        <td><span class="job-num">${j.jobNum}</span></td>
+        <td><span class="job-name" title="${j.jobName}" style="max-width:200px">${j.jobName||'—'}</span></td>
+        <td><span class="div-pill">${j.rawDiv}</span></td>
+        <td style="font-size:11px;color:#aaa">${j.foreman||'—'}</td>
+        <td style="text-align:right"><span class="dollar-val">${fmt$(j.estimates)}</span></td>
+        <td style="text-align:right"><span class="dollar-val" style="color:${j.varianceDollars<0?C.alert:'inherit'}">${j.varianceDollars>=0?'+':'-'}${fmt$(Math.abs(j.varianceDollars))}</span></td>
+      </tr>`;
+    });
+    body += '</tbody></table>';
+  }
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('drillModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrilldown(e) {
+  if (e && e.target !== document.getElementById('drillModal')) return;
+  document.getElementById('drillModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeDrilldown(null); });
+
+// ── BOOT (published view only) ──────────────────────────────────────────────
 (function init() {
   const rawData = document.getElementById('wip-data');
   const rawMeta = document.getElementById('wip-meta');
-  const INJECTED_DATA = rawData ? JSON.parse(rawData.textContent) : null;
+  if (!rawData) return; // not in published view
+  const INJECTED_DATA = JSON.parse(rawData.textContent);
   const INJECTED_META = rawMeta ? JSON.parse(rawMeta.textContent) : {};
   if (!INJECTED_DATA || !INJECTED_DATA.length) {
-    document.getElementById('noData').style.display = '';
+    const nd = document.getElementById('noData');
+    if (nd) nd.style.display = '';
     return;
   }
-  allJobs = INJECTED_DATA;
-  const meta = INJECTED_META;
+  // Re-compute per-job budget fields on the injected data
+  // (publisher serializes raw fields; we recompute ceiling/tier client-side)
+  allJobs = INJECTED_DATA.map(j => {
+    const rawDiv = j.rawDiv || '';
+    const ceiling = ceilingForSubdiv(rawDiv);
+    const est = j.estimates || 0;
+    const cost = j.jobCost || 0;
+    const costPct = est > 0 ? (cost / est) : null;
+    const ceilingDollars = (ceiling !== null && est > 0) ? est * ceiling : null;
+    const varianceDollars = (ceilingDollars !== null) ? ceilingDollars - cost : null;
+    const tier = budgetTier(costPct, ceiling);
+    return Object.assign({}, j, { ceiling, costPct, ceilingDollars, varianceDollars, tier });
+  });
   document.getElementById('updatedAt').textContent =
-    meta.updated ? 'Updated ' + meta.updated : 'Live';
+    INJECTED_META.updated ? 'Updated ' + INJECTED_META.updated : 'Live';
   document.getElementById('hdrSub').textContent =
     allJobs.length + ' active jobs';
   filteredJobs = [...allJobs];
   renderSummary();
   renderSections();
   document.getElementById('dashboard').style.display = '';
-  document.getElementById('noData').style.display    = 'none';
+  const nd = document.getElementById('noData');
+  if (nd) nd.style.display = 'none';
   document.getElementById('filterInfo').innerHTML =
     'Showing <span>' + filteredJobs.length + '</span> of ' + allJobs.length + ' jobs';
 })();
 
-// ── DIVISION SELECTOR ─────────────────────────────────────────────────────────
-function setDiv(btn) {
-  currentDiv = btn.dataset.div;
-  document.querySelectorAll('.div-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  applyFilters();
-}
-
-// ── FLAGS ─────────────────────────────────────────────────────────────────────
-function setFlag(m) {
-  flagMode = m;
-  ['All','Watch','Alert'].forEach(k =>
-    document.getElementById('flag'+k).classList.remove('active'));
-  document.getElementById('flag'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active');
-  applyFilters();
-}
-
-// ── FILTERS ───────────────────────────────────────────────────────────────────
-function applyFilters() {
-  const q = (document.getElementById('searchInp').value || '').toLowerCase();
-  filteredJobs = allJobs.filter(j => {
-    if (currentDiv !== 'ALL' && j.divKey !== currentDiv) return false;
-    if (flagMode === 'watch' && j.estimates > 0 && j.gpPct >= 35) return false;
-    if (flagMode === 'alert' && j.estimates > 0 && j.gpPct >= 20) return false;
-    if (q && !j.jobName.toLowerCase().includes(q) &&
-             !j.jobNum.toLowerCase().includes(q)  &&
-             !j.foreman.toLowerCase().includes(q)) return false;
-    return true;
-  });
-  document.getElementById('filterInfo').innerHTML =
-    'Showing <span>'+filteredJobs.length+'</span> of '+allJobs.length+' jobs';
-  renderSummary();
-  renderSections();
-}
-
-// ── SUMMARY ───────────────────────────────────────────────────────────────────
-function renderSummary() {
-  const valued = filteredJobs.filter(j => j.estimates > 0);
-  const est  = valued.reduce((s,j) => s+j.estimates, 0);
-  const cost = valued.reduce((s,j) => s+j.jobCost,   0);
-  const gp$  = est - cost;
-  const gpPct = est > 0 ? (gp$ / est * 100) : 0;
-  const w35 = filteredJobs.filter(j => j.estimates>0 && j.gpPct<35).length;
-  const w20 = filteredJobs.filter(j => j.estimates>0 && j.gpPct<20).length;
-  const pc  = gpPct>=50?'green':gpPct>=35?'orange':gpPct>=20?'yellow':'red';
-  const bc  = gpPct>=50?C.great:gpPct>=35?C.ok:gpPct>=20?C.watch:C.alert;
-
-  document.getElementById('kpiLeft').innerHTML =
-    `<div class="kpi"><div class="kpi-bar" style="background:${bc}"></div>
-      <div class="kpi-lbl">Portfolio GP%</div>
-      <div class="kpi-val ${pc}">${gpPct.toFixed(1)}%</div>
-      <div class="kpi-note">${valued.length} jobs with value</div></div>` +
-    `<div class="kpi"><div class="kpi-bar" style="background:${gp$>=0?C.great:C.alert}"></div>
-      <div class="kpi-lbl">Working GP $</div>
-      <div class="kpi-val ${gp$>=0?'green':'red'}">${fmt$(gp$)}</div>
-      <div class="kpi-note">Estimate - Job Costs</div></div>`;
-
-  document.getElementById('kpiRight').innerHTML =
-    `<div class="kpi kpi-clickable" onclick="openDrilldown('watch')">
-      <div class="kpi-bar" style="background:#facc15"></div>
-      <div class="kpi-lbl">Watch ⚠️</div>
-      <div class="kpi-val yellow">${w35}</div>
-      <div class="kpi-note">Below 35% · tap to drill</div></div>` +
-    `<div class="kpi kpi-clickable" onclick="openDrilldown('alert')">
-      <div class="kpi-bar" style="background:#f87171"></div>
-      <div class="kpi-lbl">Alert 🚨</div>
-      <div class="kpi-val red">${w20}</div>
-      <div class="kpi-note">Below 20% · tap to drill</div></div>`;
-
-  const b = {great:0,ok:0,watch:0,alert:0};
-  valued.forEach(j => {
-    if      (j.gpPct>=50) b.great++;
-    else if (j.gpPct>=35) b.ok++;
-    else if (j.gpPct>=20) b.watch++;
-    else                  b.alert++;
-  });
-  const T = Math.max(Object.values(b).reduce((s,v)=>s+v,0),1), circ=314.16;
-  let off=0;
-  ['alert','watch','ok','great'].forEach(k=>{
-    const seg=(b[k]/T)*circ;
-    const el=document.getElementById('d-'+k);
-    el.setAttribute('stroke-dasharray', seg+' '+(circ-seg));
-    el.setAttribute('stroke-dashoffset', -off);
-    off+=seg;
-  });
-  document.getElementById('donutTotal').textContent = filteredJobs.length;
-  document.getElementById('donutLegend').innerHTML =
-    `<div class="donut-leg-item"><div class="donut-leg-dot" style="background:${C.great}"></div>≥50% (${b.great})</div>`+
-    `<div class="donut-leg-item"><div class="donut-leg-dot" style="background:${C.ok}"></div>35–49% (${b.ok})</div>`+
-    `<div class="donut-leg-item"><div class="donut-leg-dot" style="background:${C.watch}"></div>20–34% (${b.watch})</div>`+
-    `<div class="donut-leg-item"><div class="donut-leg-dot" style="background:${C.alert}"></div><20% (${b.alert})</div>`;
-}
-
-// ── SECTIONS ──────────────────────────────────────────────────────────────────
-function renderSections() {
-  const map = {};
-  filteredJobs.forEach(j => {
-    const k = j.foreman && j.foreman.trim() ? j.foreman : '__unassigned__';
-    if (!map[k]) map[k] = [];
-    map[k].push(j);
-  });
-  const sorted = Object.entries(map).sort((a,b) => {
-    if (a[0]==='__unassigned__') return 1;
-    if (b[0]==='__unassigned__') return -1;
-    return pgp(a[1]) - pgp(b[1]);
-  });
-  if (!sorted.length) {
-    document.getElementById('foremanSections').innerHTML =
-      '<div class="no-results">No jobs match current filters.</div>';
-    return;
-  }
-  let html = '';
-  sorted.forEach(([name, jobs]) => {
-    const una   = name === '__unassigned__';
-    const dname = una ? 'Unassigned / No Foreperson' : name;
-    const gp    = pgp(jobs);
-    const gp$   = jobs.reduce((s,j)=>s+j.gpDollar,0);
-    const col   = una?'#555':gp>=50?C.great:gp>=35?C.ok:gp>=20?C.watch:C.alert;
-    const avBg  = una?'#1a1a1a':col, avFg = una?'#555':'#000';
-    const init  = una?'?':name.split(' ').filter(Boolean).map(p=>p[0]).join('').substring(0,2).toUpperCase();
-    const al    = jobs.filter(j=>j.estimates>0&&j.gpPct<20).length;
-    const wa    = jobs.filter(j=>j.estimates>0&&j.gpPct>=20&&j.gpPct<35).length;
-    const af    = al?`<span style="font-size:10px;background:rgba(248,113,113,0.12);color:#f87171;border-radius:4px;padding:2px 7px;">🚨 ${al}</span>`:'';
-    const wf    = wa?`<span style="font-size:10px;background:rgba(250,204,21,0.1);color:#facc15;border-radius:4px;padding:2px 7px;">⚠️ ${wa}</span>`:'';
-    const sj    = [...jobs].sort((a,b)=>{
-      if(a.estimates<=0&&b.estimates<=0)return 0;
-      if(a.estimates<=0)return 1; if(b.estimates<=0)return -1;
-      return a.gpPct-b.gpPct;
-    });
-    html += `<div class="foreman-section">
-      <div class="foreman-header" onclick="toggle(this)">
-        <div class="foreman-initials" style="background:${avBg};color:${avFg}">${init}</div>
-        <div class="foreman-name-wrap">
-          <div class="foreman-name">${dname} ${af}${wf}</div>
-          <div class="foreman-meta">${jobs.length} job${jobs.length!==1?'s':''} · ${fmt$(gp$)} working GP$</div>
-        </div>
-        <div class="foreman-bar-wrap">
-          <div class="foreman-bar-track"><div class="foreman-bar-fill" style="width:${Math.min(Math.max(una?0:gp,0),100)}%;background:${col}"></div></div>
-          <div class="foreman-bar-pct" style="color:${col}">${una?'—':gp.toFixed(1)+'%'}</div>
-        </div>
-        <div class="foreman-gp-val" style="color:${col}">${una?'—':gp.toFixed(1)+'%'}</div>
-        <span class="chevron">▼</span>
-      </div>
-      <div class="foreman-jobs">
-        <table class="job-table"><thead><tr>
-          <th class="stripe"></th>
-          <th>Job #</th><th>Job Name</th>
-          <th class="col-hide-phone">Division</th>
-          <th class="col-hide-phone" style="text-align:right">Est. Value</th>
-          <th class="col-hide-phone" style="text-align:right">Job Cost</th>
-          <th style="text-align:right">GP $</th>
-          <th style="text-align:right">GP %</th>
-        </tr></thead><tbody>${sj.map(jobRow).join('')}</tbody></table>
-      </div></div>`;
-  });
-  document.getElementById('foremanSections').innerHTML = html;
-}
-
-function toggle(hdr){
-  const jobs=hdr.nextElementSibling,chev=hdr.querySelector('.chevron');
-  jobs.classList.toggle('open'); chev.classList.toggle('open');
-}
-
-function jobRow(j){
-  const noEst=j.estimates<=0;
-  const col=noEst?'#333':j.gpPct>=50?C.great:j.gpPct>=35?C.ok:j.gpPct>=20?C.watch:C.alert;
-  return `<tr>
-    <td class="stripe"><div style="width:4px;height:34px;border-radius:2px;background:${col}"></div></td>
-    <td><span class="job-num">${j.jobNum}</span></td>
-    <td><span class="job-name" title="${esc(j.jobName)}">${esc(j.jobName)||'—'}</span></td>
-    <td class="col-hide-phone"><span class="div-pill">${j.rawDiv}</span></td>
-    <td class="col-hide-phone" style="text-align:right"><span class="dollar-val">${j.estimates>0?fmt$(j.estimates):'<span style="color:#555">—</span>'}</span></td>
-    <td class="col-hide-phone" style="text-align:right"><span class="dollar-val">${j.jobCost>0?fmt$(j.jobCost):'<span style="color:#555">—</span>'}</span></td>
-    <td style="text-align:right"><span class="dollar-val" style="color:${j.gpDollar<0?'#f87171':'inherit'}">${j.estimates>0?fmt$(j.gpDollar):'<span style="color:#555">—</span>'}</span></td>
-    <td style="text-align:right">${badge(j.gpPct,j.estimates)}</td>
-  </tr>`;
-}
-
-// ── DRILLDOWN ─────────────────────────────────────────────────────────────────
-function openDrilldown(mode){
-  const isAlert=mode==='alert', thr=isAlert?20:35;
-  const label=isAlert?'🚨 Alert — Below 20% GP':'⚠️ Watch — Below 35% GP';
-  const jobs=filteredJobs.filter(j=>j.estimates>0&&j.gpPct<thr).sort((a,b)=>a.gpPct-b.gpPct);
-  document.getElementById('modalTitle').textContent=label;
-  document.getElementById('modalSub').textContent=
-    jobs.length+' job'+(jobs.length!==1?'s':'')+' need'+(jobs.length===1?'s':'')+' attention'+
-    (currentDiv!=='ALL'?' · '+document.querySelector('.div-btn.active').textContent.trim():' · All Divisions');
-  let body='';
-  if(!jobs.length){
-    body='<div class="modal-empty">✅ No jobs in this range — great shape!</div>';
-  } else {
-    body=`<table class="modal-job-table"><thead><tr>
-      <th></th><th>GP %</th><th>Job #</th><th>Job Name</th>
-      <th class="col-hide-phone">Division</th><th class="col-hide-phone">Foreman</th>
-      <th style="text-align:right">Est. Value</th><th style="text-align:right">GP $</th>
-    </tr></thead><tbody>`;
-    jobs.forEach(j=>{
-      body+=`<tr>
-        <td style="padding-left:10px">${j.gpPct<20?'🚨':'⚠️'}</td>
-        <td><span class="gp-badge ${j.gpPct<20?'gp-alert':'gp-watch'}">${j.gpPct.toFixed(1)}%</span></td>
-        <td><span class="job-num">${j.jobNum}</span></td>
-        <td><span class="job-name" title="${esc(j.jobName)}" style="max-width:180px">${esc(j.jobName)||'—'}</span></td>
-        <td class="col-hide-phone"><span class="div-pill">${j.rawDiv}</span></td>
-        <td class="col-hide-phone" style="font-size:11px;color:#aaa">${j.foreman||'—'}</td>
-        <td style="text-align:right"><span class="dollar-val">${fmt$(j.estimates)}</span></td>
-        <td style="text-align:right"><span class="dollar-val" style="color:${j.gpDollar<0?C.alert:'inherit'}">${fmt$(j.gpDollar)}</span></td>
-      </tr>`;
-    });
-    body+='</tbody></table>';
-  }
-  document.getElementById('modalBody').innerHTML=body;
-  document.getElementById('drillModal').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-function closeDrilldown(e){
-  if(e&&e.target!==document.getElementById('drillModal'))return;
-  document.getElementById('drillModal').classList.remove('open');
-  document.body.style.overflow='';
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrilldown(null);});
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-function esc(s){
-  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function pgp(jobs){
-  const e=jobs.reduce((s,j)=>s+j.estimates,0);
-  const c=jobs.reduce((s,j)=>s+j.jobCost,0);
-  return e>0?((e-c)/e*100):0;
-}
-function badge(p,e){
-  if(e<=0)return'<span class="gp-badge gp-zero">—</span>';
-  const cls=p>=50?'gp-great':p>=35?'gp-ok':p>=20?'gp-watch':'gp-alert';
-  return`<span class="gp-badge ${cls}">${p.toFixed(1)}%</span>`;
-}
-function fmt$(n){
-  if(Math.abs(n)>=1000000)return'$'+(n/1000000).toFixed(1)+'M';
-  if(Math.abs(n)>=1000)return'$'+Math.round(n).toLocaleString();
-  return'$'+n.toFixed(0);
-}
 </script>
 </body>
 </html>
