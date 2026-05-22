@@ -1,0 +1,2525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CELCO · PC Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+  // Fallback to cdnjs if jsdelivr is blocked
+  if (typeof XLSX === 'undefined') {
+    document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>');
+  }
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif;padding:clamp(14px,3vw,28px);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #1c1c1c;gap:12px;}
+.hdr-brand{display:flex;align-items:center;gap:14px;}
+.hdr-logo{height:clamp(34px,4.4vw,46px);width:auto;display:block;}
+.hdr-title{font-size:clamp(15px,2.2vw,18px);font-weight:700;color:#ff6a00;letter-spacing:0.3px;}
+.hdr-sub{font-size:clamp(10px,1.4vw,12px);color:#555;margin-top:4px;}
+.hdr-tag{font-size:9px;font-weight:600;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:3px;}
+
+/* DROP ZONE */
+.drop-zone{background:#0a0a0a;border:1px dashed #2a2a2a;border-radius:14px;padding:14px 18px;margin-bottom:16px;cursor:pointer;transition:all .2s;}
+.drop-zone:hover{border-color:#ff6a00;background:#0f0a07;}
+.drop-zone.drag-over{border-color:#ff6a00;background:#1a0e04;}
+.drop-zone-title{font-size:11px;font-weight:600;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.drop-zone-hint{font-size:11px;color:#555;}
+.drop-zone input{display:none;}
+
+/* PUBLISHED MODE — when window.__BAKED_DATA__ is present, hide the drop zone
+   and any other "load reports" UI. Replaced with a compact "Last Published" badge. */
+body.published-mode .drop-zone{display:none;}
+body.published-mode .publish-button-wrap{display:none;}
+.last-published-bar{display:none;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#666;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+body.published-mode .last-published-bar{display:flex;}
+.last-published-bar .lp-left{display:flex;align-items:center;gap:8px;}
+.last-published-bar .lp-badge{background:#1a1a1a;color:#4ade80;font-size:9px;font-weight:700;letter-spacing:1.2px;padding:3px 7px;border-radius:4px;border:1px solid rgba(74,222,128,0.3);}
+.last-published-bar .lp-time{color:#888;}
+
+/* PUBLISH BUTTON — appears in the drop zone area when at least one report is loaded */
+.publish-button-wrap{margin-top:12px;padding-top:10px;border-top:1px solid #1a1a1a;display:flex;justify-content:flex-end;}
+.publish-btn{background:#1a1a1a;color:#60a5fa;border:1px solid rgba(96,165,250,0.3);padding:8px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.3px;}
+.publish-btn:hover{background:#0e1a2a;border-color:#60a5fa;}
+.publish-btn:disabled{color:#444;border-color:#222;background:#0e0e0e;cursor:not-allowed;}
+
+/* REPORT STATUS GRID */
+.report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px;}
+.report-pill{background:#111;border:1px solid #1c1c1c;border-radius:8px;padding:8px 10px;font-size:10px;}
+.report-pill-name{font-weight:600;color:#888;letter-spacing:0.5px;text-transform:uppercase;}
+.report-pill-status{font-size:9px;color:#444;margin-top:3px;}
+.report-pill.loaded{border-color:rgba(74,222,128,0.2);background:rgba(74,222,128,0.04);}
+.report-pill.loaded .report-pill-name{color:#4ade80;}
+.report-pill.loaded .report-pill-status{color:#4ade80;}
+
+/* DIVISION TABS */
+.div-tabs-wrap{margin-bottom:18px;}
+.div-tabs-label{font-size:9px;font-weight:600;letter-spacing:1.5px;color:#444;text-transform:uppercase;margin-bottom:8px;}
+.div-tabs{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px;}
+.div-tabs::-webkit-scrollbar{display:none;}
+.div-tab{padding:clamp(10px,1.5vw,12px) clamp(16px,2.5vw,22px);border-radius:10px;font-size:clamp(11px,1.6vw,13px);font-weight:600;cursor:pointer;border:1px solid #2a2a2a;background:#111;color:#888;transition:all .2s;font-family:inherit;letter-spacing:0.3px;white-space:nowrap;flex-shrink:0;}
+.div-tab:hover:not(.active){border-color:#444;color:#ccc;background:#161616;}
+.div-tab.active{background:#ff6a00;color:#000;border-color:#ff6a00;}
+
+/* NO DATA STATE */
+.no-data{text-align:center;padding:80px 20px;}
+.no-data-icon{font-size:56px;margin-bottom:16px;opacity:0.3;}
+.no-data-text{font-size:16px;font-weight:600;color:#444;margin-bottom:8px;}
+.no-data-sub{font-size:12px;color:#333;}
+
+/* TRIAGE STRIP */
+.triage{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:20px;}
+.triage-card{background:#111;border-radius:12px;padding:14px 16px;border-left:4px solid #333;cursor:pointer;transition:all .15s;position:relative;}
+.triage-card:hover{transform:translateY(-2px);outline:1px solid #ff6a00;background:#161616;}
+.triage-card:hover .triage-drill-hint{opacity:1;}
+.triage-card.green{border-left-color:#4ade80;}
+.triage-card.orange{border-left-color:#ff6a00;}
+.triage-card.yellow{border-left-color:#facc15;}
+.triage-card.red{border-left-color:#f87171;}
+.triage-drill-hint{position:absolute;top:10px;right:12px;font-size:9px;color:#555;letter-spacing:0.5px;opacity:0.5;transition:opacity .15s;}
+.triage-icon{font-size:18px;margin-bottom:4px;}
+.triage-num{font-size:clamp(22px,3.5vw,30px);font-weight:700;line-height:1;letter-spacing:-0.5px;}
+.triage-num.green{color:#4ade80;}
+.triage-num.orange{color:#ff6a00;}
+.triage-num.yellow{color:#facc15;}
+.triage-num.red{color:#f87171;}
+.triage-lbl{font-size:10px;font-weight:600;color:#888;letter-spacing:0.8px;text-transform:uppercase;margin-top:6px;}
+.triage-sub{font-size:10px;color:#555;margin-top:3px;}
+
+/* SECTION HEADER */
+.section{margin-bottom:24px;}
+.section-hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;gap:10px;}
+.section-title{font-size:clamp(13px,1.8vw,15px);font-weight:700;color:#f5f5f7;letter-spacing:0.2px;}
+.section-meta{font-size:11px;color:#555;}
+.section-meta span{color:#ff6a00;font-weight:600;}
+
+/* TWO-COL ROW */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:760px){.two-col{grid-template-columns:1fr;}}
+
+/* PANEL */
+.panel{background:#111;border-radius:14px;padding:16px 18px;}
+.panel-title{font-size:11px;font-weight:600;color:#888;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px;}
+.panel-empty{padding:30px 10px;text-align:center;color:#444;font-size:12px;}
+
+/* AR AGING BARS */
+.aging-bars{display:flex;flex-direction:column;gap:10px;}
+.aging-bar-row{display:grid;grid-template-columns:80px 1fr 100px;align-items:center;gap:12px;}
+.aging-bar-lbl{font-size:11px;font-weight:600;color:#aaa;}
+.aging-bar-track{background:#0a0a0a;height:24px;border-radius:6px;overflow:hidden;position:relative;}
+.aging-bar-fill{height:100%;border-radius:6px;transition:width 1s cubic-bezier(0.16,1,0.3,1);display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:#000;}
+.aging-bar-amt{font-size:12px;font-weight:600;text-align:right;color:#f5f5f7;}
+.aging-bar-count{font-size:10px;color:#666;}
+
+/* TOTAL RESPONSIBILITY HERO STRIP — orange, sits above AR Aging + Work in Motion */
+.responsibility-strip{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;margin-bottom:18px;background:linear-gradient(135deg,#1a0e00,#120800);border:1px solid #3a1f00;border-radius:14px;}
+.rs-left{display:flex;flex-direction:column;}
+.rs-lbl{font-size:11px;color:#ff6a00;text-transform:uppercase;letter-spacing:1.8px;font-weight:700;margin-bottom:6px;}
+.rs-sub{font-size:11px;color:#777;}
+.rs-right{text-align:right;}
+.rs-val{font-size:clamp(22px,3.2vw,32px);font-weight:700;color:#ff6a00;line-height:1;letter-spacing:-1px;}
+.rs-jobs{font-size:11px;color:#888;margin-top:6px;}
+.rs-empty{color:#555;font-size:13px;}
+
+/* WORK IN MOTION PANEL HEADER */
+.wim-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #222;}
+.wim-left{padding-top:2px;}
+.wim-right{text-align:right;}
+.wim-headline-lbl{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;}
+.wim-headline-val{font-size:22px;font-weight:700;line-height:1;letter-spacing:-0.5px;color:#ff6a00;}
+.wim-headline-sub{font-size:11px;color:#666;margin-top:6px;}
+.wim-note{font-size:10px;color:#555;margin-top:12px;padding-top:10px;border-top:1px solid #1a1a1a;}
+.wim-note .accent{color:#777;}
+/* Wider label column for the Work in Motion bars (since "Invoice Pending" is long) */
+.wim-bars .aging-bar-row{grid-template-columns:110px 1fr 100px;}
+
+/* COLLECTIONS KPI */
+/* Cap KPI grid width and center it — Collections is now a full-width row,
+   and at full width the two KPIs would look stranded in empty space.
+   Now 3 columns to accommodate the Collection Rate KPI alongside MTD totals. */
+.coll-kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;max-width:780px;margin:0 auto;}
+.coll-val{font-size:clamp(20px,3vw,28px);font-weight:700;letter-spacing:-0.5px;line-height:1;}
+.coll-val.orange{color:#ff6a00;}
+.coll-val.green{color:#4ade80;}
+.coll-val.yellow{color:#facc15;}
+.coll-val.red{color:#f87171;}
+.coll-val.blue{color:#60a5fa;}
+.coll-val.purple{color:#c084fc;}
+.coll-val.gold{color:#fbbf24;}
+.coll-val.muted{color:#bbb;}
+.coll-lbl{font-size:9px;font-weight:600;color:#777;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;}
+.coll-note{font-size:10px;color:#555;margin-top:4px;}
+
+/* ZONE TRACKER — Coordinator Collection Performance Incentive Program */
+.zone-wrap{margin-top:18px;padding-top:18px;border-top:1px solid #1a1a1a;}
+.zone-card{border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;border:1px solid;}
+.zone-icon{font-size:28px;line-height:1;flex-shrink:0;}
+.zone-body{flex:1;min-width:0;}
+.zone-name{font-size:13px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.zone-reward{font-size:12px;color:#ccc;margin-top:3px;line-height:1.4;}
+.z-red{background:rgba(248,113,113,0.08);border-color:rgba(248,113,113,0.3);}
+.z-red .zone-name{color:#f87171;}
+.z-yellow{background:rgba(250,204,21,0.08);border-color:rgba(250,204,21,0.3);}
+.z-yellow .zone-name{color:#facc15;}
+.z-green{background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.3);}
+.z-green .zone-name{color:#4ade80;}
+.z-bonus1{background:rgba(96,165,250,0.08);border-color:rgba(96,165,250,0.3);}
+.z-bonus1 .zone-name{color:#60a5fa;}
+.z-bonus2{background:rgba(96,165,250,0.12);border-color:rgba(96,165,250,0.45);}
+.z-bonus2 .zone-name{color:#60a5fa;}
+.z-wfh{background:rgba(192,132,252,0.1);border-color:rgba(192,132,252,0.4);}
+.z-wfh .zone-name{color:#c084fc;}
+.z-review{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.4);}
+.z-review .zone-name{color:#fbbf24;}
+
+/* PILOT BANNER — appears above the My Incentive Tracker section */
+.pilot-banner{display:flex;align-items:center;gap:10px;background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.3);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
+.pilot-badge{flex-shrink:0;background:#facc15;color:#000;font-size:10px;font-weight:800;letter-spacing:1.5px;padding:3px 8px;border-radius:4px;}
+.pilot-text{font-size:11px;color:#facc15;line-height:1.4;}
+.pilot-text strong{color:#fde68a;font-weight:700;}
+
+/* JOB LIST TABLE */
+.job-list{margin-top:6px;}
+.job-list-table{width:100%;border-collapse:collapse;font-size:12px;}
+.job-list-table th{text-align:left;padding:8px 10px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#444;border-bottom:1px solid #1a1a1a;white-space:nowrap;font-weight:600;}
+.job-list-table td{padding:10px;border-bottom:1px solid #161616;vertical-align:middle;}
+.job-list-table tr:last-child td{border-bottom:none;}
+.job-list-table tr:hover td{background:rgba(255,106,0,0.03);}
+.jl-jobnum{font-size:10px;color:#666;font-weight:600;font-family:ui-monospace,SFMono-Regular,monospace;}
+.jl-name{font-size:12px;color:#e5e5ea;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.jl-days{font-size:12px;font-weight:700;}
+.jl-days.green{color:#4ade80;}
+.jl-days.orange{color:#ff6a00;}
+.jl-days.yellow{color:#facc15;}
+.jl-days.red{color:#f87171;}
+.jl-amt{font-size:12px;font-weight:600;text-align:right;}
+
+/* STATUS BADGES */
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.3px;}
+.badge-on{background:rgba(74,222,128,0.1);color:#4ade80;}
+.badge-warn{background:rgba(250,204,21,0.1);color:#facc15;}
+.badge-over{background:rgba(248,113,113,0.1);color:#f87171;}
+.badge-na{background:rgba(255,255,255,0.05);color:#555;}
+
+/* PANEL FULL WIDTH */
+.panel-full{margin-top:14px;}
+
+/* SCROLLABLE LIST */
+.scroll-list{max-height:380px;overflow-y:auto;}
+.scroll-list::-webkit-scrollbar{width:6px;}
+.scroll-list::-webkit-scrollbar-track{background:#0a0a0a;}
+.scroll-list::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px;}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:18px;right:18px;z-index:2000;display:flex;flex-direction:column;gap:8px;}
+.toast{background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:10px 14px;font-size:12px;color:#f5f5f7;animation:slideIn .25s ease-out;max-width:380px;}
+.toast.success{border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.06);}
+.toast.error{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);}
+.toast.warn{border-color:rgba(250,204,21,0.3);background:rgba(250,204,21,0.06);}
+@keyframes slideIn{from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:translateX(0);}}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:clamp(16px,4vw,40px);overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:#111;border-radius:18px;width:100%;max-width:1100px;border:1px solid #222;overflow:hidden;}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #1c1c1c;}
+.modal-title{font-size:15px;font-weight:700;color:#f5f5f7;}
+.modal-sub{font-size:11px;color:#666;margin-top:3px;}
+.modal-close{width:32px;height:32px;border-radius:50%;background:#1a1a1a;border:none;color:#888;font-size:16px;cursor:pointer;}
+.modal-close:hover{background:#2a2a2a;color:#f5f5f7;}
+.modal-body{padding:14px 22px 22px;overflow-x:auto;}
+
+/* TV: bigger */
+@media(min-width:1600px){
+  body{padding:36px 48px;}
+  .div-tab{font-size:14px;padding:14px 26px;}
+  .section-title{font-size:17px;}
+}
+
+/* MOBILE */
+@media(max-width:640px){
+  .triage{grid-template-columns:1fr 1fr;}
+  .coll-kpi{grid-template-columns:1fr;}
+  .drill-cols{grid-template-columns:1fr !important;}
+  .aging-bar-row{grid-template-columns:60px 1fr 80px;}
+  .wim-bars .aging-bar-row{grid-template-columns:80px 1fr 80px;}
+  .responsibility-strip{padding:14px 16px;}
+  .wim-header{flex-direction:column;align-items:flex-start;gap:10px;}
+  .wim-right{text-align:left;}
+}
+
+/* ===== HOME VIEW ===== */
+.div-tab.home-tab{border-color:#ff6a00;color:#ff6a00;}
+.div-tab.home-tab.active{background:#ff6a00;color:#000;border-color:#ff6a00;}
+.arrival{position:relative;border-radius:20px;overflow:hidden;margin-bottom:26px;background:#0a0a0a;border:1px solid #1c1c1c;}
+.arrival-inner{display:flex;align-items:center;gap:clamp(20px,5vw,56px);padding:clamp(28px,5vw,52px) clamp(24px,5vw,56px);position:relative;z-index:2;}
+.arrival-glow{position:absolute;top:-40%;right:-10%;width:60%;height:180%;background:radial-gradient(ellipse at center,rgba(255,106,0,0.18) 0%,rgba(255,106,0,0.05) 40%,transparent 70%);z-index:1;pointer-events:none;}
+.arrival-logo{width:clamp(110px,17vw,180px);height:auto;flex-shrink:0;filter:drop-shadow(0 6px 24px rgba(255,106,0,0.22));}
+.arrival-text{flex:1;min-width:0;}
+.arrival-greeting{font-size:clamp(24px,5vw,44px);font-weight:700;line-height:1.05;letter-spacing:-1px;color:#f5f5f7;}
+.arrival-greeting .accent{color:#ff6a00;}
+.arrival-date{font-size:clamp(12px,1.8vw,15px);color:#888;margin-top:10px;font-weight:600;letter-spacing:0.3px;}
+.arrival-tagline{font-size:clamp(10px,1.5vw,12px);color:#555;margin-top:14px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.home-collrate{margin-top:20px;padding:14px 18px;background:rgba(255,106,0,0.05);border:1px solid rgba(255,106,0,0.18);border-radius:12px;display:inline-block;}
+.hcr-label{font-size:9px;font-weight:600;letter-spacing:1.5px;color:#888;text-transform:uppercase;}
+.hcr-value{font-size:clamp(26px,4.5vw,38px);font-weight:700;color:#ff6a00;line-height:1.1;margin-top:4px;letter-spacing:-0.5px;}
+.hcr-note{font-size:10px;color:#555;margin-top:3px;}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.tool-tile{background:#111;border:1px solid #1c1c1c;border-radius:16px;padding:20px;text-decoration:none;display:flex;flex-direction:column;gap:10px;transition:all .18s;cursor:pointer;position:relative;}
+.tool-tile:hover{border-color:#ff6a00;background:#161616;transform:translateY(-3px);}
+.tool-tile.celco{border-color:rgba(255,106,0,0.4);background:#160c03;}
+.tool-tile.celco:hover{background:#1d0f04;}
+.tool-tile.future{opacity:0.45;pointer-events:none;}
+.tool-top{display:flex;align-items:center;justify-content:space-between;}
+.tool-icon{font-size:28px;line-height:1;}
+.tool-ext{font-size:10px;color:#555;letter-spacing:0.5px;font-weight:600;}
+.tool-name{font-size:15px;font-weight:700;color:#f5f5f7;letter-spacing:0.2px;}
+.tool-desc{font-size:11px;color:#666;line-height:1.45;}
+.tool-soon{position:absolute;top:14px;right:16px;font-size:8px;font-weight:700;letter-spacing:1px;color:#facc15;background:rgba(250,204,21,0.1);padding:3px 8px;border-radius:5px;}
+.tool-cat{font-size:8px;font-weight:700;letter-spacing:1.5px;color:#ff6a00;text-transform:uppercase;}
+.res-block{background:#0d0d0d;border:1px solid #1c1c1c;border-radius:14px;padding:8px 20px;}
+.cal-intro{font-size:11px;color:#777;padding:12px 0 6px;line-height:1.5;}
+.res-link{display:flex;align-items:center;gap:10px;padding:12px 4px;font-size:13px;color:#cfcfcf;text-decoration:none;border-bottom:1px solid #161616;transition:all .14s;cursor:pointer;font-weight:600;}
+.res-block .res-link:last-child{border-bottom:none;}
+.res-link:hover{color:#ff6a00;padding-left:8px;}
+.res-icon{font-size:15px;width:20px;text-align:center;}
+.res-arrow{margin-left:auto;font-size:11px;color:#444;font-weight:600;}
+.res-link:hover .res-arrow{color:#ff6a00;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-brand">
+    <img class="hdr-logo" src="data:image/png;base64,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" alt="CELCO">
+    <div>
+      <div class="hdr-title">PC HUB</div>
+      <div class="hdr-tag">PROJECT COORDINATOR DASHBOARD</div>
+      <div class="hdr-sub" id="hdrSub">Drop reports below to begin</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BAKED_DATA_MARKER: Cowork injects window.__BAKED_DATA__ here ===== -->
+<!-- BAKED_DATA -->
+
+<!-- LAST PUBLISHED BAR (shown only in published mode) -->
+<div class="last-published-bar" id="lastPublishedBar">
+  <div class="lp-left">
+    <span class="lp-badge">PUBLISHED</span>
+    <span>Auto-refreshed by Cowork · last update <span class="lp-time" id="lpTime">—</span></span>
+  </div>
+  <div style="font-size:10px;color:#555;">No manual report load needed</div>
+</div>
+
+<!-- DROP ZONE -->
+<div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+  <div class="drop-zone-title">📥 Drop Reports Here</div>
+  <div class="drop-zone-hint">Drop or click to load: AR Report · Payment Report · IMSR · Working GP · Job Aging Report</div>
+  <input type="file" id="fileInput" multiple accept=".xls,.xlsx,.html,.htm,*/*" onchange="handleFiles(this.files)">
+  <div class="report-grid" id="reportGrid">
+    <div class="report-pill" data-key="ar"><div class="report-pill-name">AR Report</div><div class="report-pill-status">Not loaded</div></div>
+    <div class="report-pill" data-key="payments"><div class="report-pill-name">Payments</div><div class="report-pill-status">Not loaded</div></div>
+    <div class="report-pill" data-key="imsr"><div class="report-pill-name">IMSR</div><div class="report-pill-status">Not loaded</div></div>
+    <div class="report-pill" data-key="wgp"><div class="report-pill-name">Working GP</div><div class="report-pill-status">Not loaded</div></div>
+    <div class="report-pill" data-key="aging"><div class="report-pill-name">Job Aging</div><div class="report-pill-status">Not loaded</div></div>
+  </div>
+  <div style="margin-top:12px;padding-top:10px;border-top:1px solid #1a1a1a;font-size:10px;color:#555;line-height:1.5;">
+    ℹ️ <strong style="color:#888;">Data note:</strong> Job Aging Report is filtered to jobs received on or after 1/1/2026 — older jobs (even if still open) won't appear in any status panel.
+    <span style="color:#444;">The "Pending Sales" panel may also include a small number of jobs that have actually moved to Pre&nbsp;Production but haven't been re-statused in DASH yet.</span>
+  </div>
+  <div class="publish-button-wrap" onclick="event.stopPropagation();">
+    <button class="publish-btn" id="publishBtn" onclick="event.stopPropagation(); publishToTeam();" title="Generate a self-contained published HTML for the team — all loaded report data gets baked in">📤 Publish to Team</button>
+  </div>
+</div>
+
+<!-- DIVISION TABS -->
+<div class="div-tabs-wrap">
+  <div class="div-tabs-label">Select View</div>
+  <div class="div-tabs" id="divTabs">
+    <button class="div-tab home-tab active" data-div="HOME" onclick="setDiv(this)">🏠 Home</button>
+    <button class="div-tab" data-div="EMERGENCY" onclick="setDiv(this)">🚨 Emergency</button>
+    <button class="div-tab" data-div="STRUCTURE" onclick="setDiv(this)">🏗️ Structure</button>
+    <button class="div-tab" data-div="MAINTENANCE" onclick="setDiv(this)">🔧 Maintenance</button>
+    <button class="div-tab" data-div="PLUMBING" onclick="setDiv(this)">🔩 Plumbing</button>
+    <button class="div-tab" data-div="IRVINE" onclick="setDiv(this)">🏘️ Irvine</button>
+    <button class="div-tab" data-div="MARIA" onclick="setDiv(this)">👩‍💼 Maria — ELE/CST/MED</button>
+    <button class="div-tab" data-div="ALL" onclick="setDiv(this)" style="background:#1a1a1a;border-color:#444;color:#888;font-style:italic;">🔍 ALL</button>
+  </div>
+</div>
+
+
+<!-- ===== HOME VIEW (landing tab) ===== -->
+<div id="homeView">
+
+  <div class="arrival">
+    <div class="arrival-glow"></div>
+    <div class="arrival-inner">
+      <img class="arrival-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAAGRCAMAAAAdJTcZAAADAFBMVEUAAAD+kBYEBgc9Pj35jRVBQkEXFBKvZxEEBgcoGQnOeBMEBQYDBQeSVhAEBgcEBgcEBgd0RQ4mJiYjHyBVVFQ+QD5HKwtWMww5IwpDQTw8PDyCTQ/bgRVlPA1+fn4yOUD/fwBAQUD/qgA9PT09Pj0+QD4+Qj4+QD5AQUD//wBAQEBBQUE+QD5BQUGhXhBFRUVBQUG9cBI+QD7+lBb+lBX+kxX+lBb/lRD+lRU9PT3/AAA9Pj2SYys8PTz+kxVvVDO2cyQVGCA9Qj0eICA+Pj6nbCf/ixIAfwCFXS4pKSk3RTcHFQxiTjbHeiD9jRP/ohjAbhL///8TFBUmJycoKSlMJkxINUhCPEL/VQAAVQA/QUAqVSr7jxT/kSQAAD8bGxsfISEAPwAzADMuRUVVAFVAPz5APkBVVU9/AH9mZmafYBGPf3+Li4uRkZH/ZgD/jhUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADVCd2YAAABAHRSTlMA/v3+/v7+/8///y5P/66Pb//+/wP7/////gr///8C/wLOAyxNsUjPrwGQTWtw/xAv/5DPUHGuETBtAYz/zZP///8x/7H/EwL/CRMM//8p//8Bs6jVBg4qAwP/BlYHBC6SBAULA/9vMAIF/xALBwVrAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAn47DpwAAMdZJREFUeNrtfWd720iyLgkiAwRAH4GZCpZsWVaWcxzvjMOEnc3hhHtuzvH/f7sIDaABdHU3SESK/Ty749HQFNkvquqt3Ot165i2Y3vHCo8aHCE4Vm93WnJsATo7kHYg7Q7/cVLAyLKsBWcHUttAGurhEaPTF3cg1XYM2+IBSemnjweSvAOpLogEweYDScROBJK6u8HqubXlGxmHB6QrD5aMLGk7kGowNcjZMbls0g6kBiESBGMHUmtNUXzYWnEHUlOmyDvakMv4k0Hq70CqEKJIz40VTl8HAGm6A6lqUzTRvXtWBA4GHoC0IIIklPrZDNPxI7mOY5rG/UUoNkXyyIPIc3eGPAw8AGmUBUksFyTTVtNhQdVyzHsIEWaKxAAisT/iYeAQSOPSQDKyCMVI2fcLKAczRQFE/j1PeBh41SAZcJQ9iLQ7xn2DKDBFopgQNOEX9i1WClIcY59OFleKf4bD0WQq4wJ1D3DKmSI8RspB0HyQVmSQNr48Az0946GeeX99uJri8nS/TFFyzTpftgEAaVICSGb40VYBQukQrn+WykpLcDK3HqLEFCXXzMfAA5AmlYAUivg4kO/s+6OfiPpIS3jENqq9xBTdZiHyr3nIRe4qA+mX8AEa5j4ZjpT/DxynLTNPgCnCrnnFd80ASKtNQQqeIE0HIYqA8v9PWclbaJ4MyBQVN/0+SOPyQQowmoh9KkQ4TuMtM0+xKZoqEEQif4iUDNJoM5ACjEZ9DoxinJbD6fa4uYkpUvowRPqKt5QEBmntm/pFDc2RyIdRbJ+2hEYkDjzZFKGfKZPgNXZDIFlFMYpxws1TR2mEyTZF/s+vIr3hcII0LRckWyCnP3jN06TD5onPFInDSGVYfA9iAFKOdizWB8kUSJGmIjgthwmN6JR54jRFo/jL8eoK7321PEjD9UESQlK/HkgdNk/FTJGvzgsRsVJB8j+qJvbXxSjB6Q+d8nINPlMUU9himlwN7rQ0kAJlp/ThKIMY/0EsZJ46YoqGZZoiDpDWcv5VikFCAbsYHjpQCCeNs4BwG01RRSA5FGUXUOzRWPM7N8aroSJiETwQJyWg5KrRAVO0Kt0UZUDKhmev1gRJJVYtI4j0lZzKy45HAVAgTN7PR/wOX7MQaQuanlOmmzkV3rXKeZCU9UBySF5X+sLTR57AOIn95bTtqs4oZorW/SZWmSCBrMG78Mj3SbpyqTiJ4YdotapD0ZUp3RTJ3KbIgXSh/1vKAskhxZjCN7yNnqXwkxqGg1URaSM9a55iyWt5m5QZ6o4STJHh8w+1epBUQJAiocgwT8OxEpwWKZy8TzTmD201eVTY5UgSMCpTz0XGzQRBWhJBstd8qkCMHJqH4derLCMt7kme1n5Vx9AeBUxRcgsWCJKeA0lfBySLHFgN3w22/xhOyDz1AxegIx2hKuECI4LMZ4pM3EYb1YLkMx1ZJHxcUWO0ShlJQ5W88nASJ91QdbEoTUj6Q+PziuLvvgrcXbtakBxysCHMxbPyvFg1sjZqPfPOUVqSKC04dAFWq+LpehG6KLs0kCC5Vzhv3LS7OevDJj6cInzleUUfRWVXwLXDIFnFtZ1GIjlTfsAT82R3BiNYzY/o38PMVvAj410lSA7wQClCobryUEV3KiVLJkzwlWeisno/qtgJa7wcMkhKDqRlcZAsorYLGwcKUQDDtrpV3WAKhCB1VGLqMExRuoLff6LVCkEiflLw127VITu06Lv/wjZFme49k6il8iAVHy5kkir/YQHeqmOSHVrylZsqWMGPckQWL0iFhwsRB0Iw9PJWiRJEbFWaKRKJ3pVRFUhEkxQ+GfbWg0R1aE2WKWJ7VwBIhQc5qGSTVEo3WncdWlx78ZVN6iTvqqS5NUDh/1K4HwMhQIdWjq4cM0UUiJZhiZRdDUhAg7TSeW1ncT+jMomFI4eW2kyWruAXCM91SSABvGHUNcc0b2pNztdRHFq2KWIkCEuaAEVyt7bAJNm8ioDq0G5cNlnSBChyvKHr074cfpMKObR6sQp+cvappAlQ5KKjjs9yNflmBsavnfYBfrtp2WRJE6DINZZ6p6ciG4UC8nBsSN64gr+kCVDbCJJKplpFHVq+ZjJqIURJw4VUYptTp0EKG+j5mY8ApAFKqOAvDyRCB02Xh8AH8QFlwR8ftoFehRIq+I3yQCLHrjrK7sKm0t8r/I9ZYMK4pyIUquDnHC5kBMcMjhMe246W+qgmse6/7OGGqY9tOjZaJWTZTvnTKB3UVBqESAvI3oIJ0joV/BSQVHydEu2o5ELYkgZJEVR0ftBhybMfAvI9jmpDTH5R0kQOiLhMkWOl3xkYLsR9DDBTsSg/LEQZRVna4xBorqkYdQ3YBUSJ2nbPXcEfJDXMMkGy4bBQ6QFWrNzVc5+jNUJlzxTwHwPNL74OuY9aQP6mdFN0y2OKUAOuygJpJISLlKbT6dg7k8lktRp5ZzH0TzAEUrnVw7AtJcBacqoibh8WpqNhsEvIr/HXlVE8U6CUGhY1YdMhhTIL/EWoel/EK/hpT1PyHJo4vSfl50VW73EwWDB+K6JpQ5ELo1RrHpeMpz/v1aQ0mCyszapYbhms3u9zN5M5KqlAFHzfNFykEzxlVvw20+IFgoXESE0KcvvJMxT/KVb2zma/JzXRJXTIuZUB7NDym6JwFsStjD/eAEhsMUKNA0Yi6WKVhSjo849E4mcLRxMN5c2FyUlPdBELKQMbUChxLyrVFCUNuMt++vFmSRKMUZAbdmgJJaTS7dLEaKzTRlF6/xttOlHAzEx0CZUBr3ACDq2IQFJ5TFHYgJt+vMFeZCZIK1wRmECWXy+liQU9Y5RpoTHDHW9USx6T7zUDkNTqfR5TNIkLw/H6V5VGG2kYKalkiwGlJlcloBQ+ZJMlc2SRuGkDmpofRFEk6EC/BodpipJZEGljuCZIYZG3nb5IBWwhszZWdbLCNYnS+4r6+r9RzVv+QkGHdar306YI07NY8a/KjmX0oSo+gZ1P8XwlbTPOFebeJiLv5K+oU1BdU2IzT1qoMqwiNk2DhuI6TFMkkutf1wIJPRkmB/307my6/sCWCKNhn99uRuMF1LUs3zBXBDApxFCp1fugKRqT8utJ/Ssxp8o8uIuEfUViajIhoGtE10KMlEID9LyXLtZoXndI4xQRMXMKvQtn9T7WLtvvU+tfA5AyKwrY5ypfomEI4BiHiHMVj67FGBUdQFkcJZM0TjG8qUJkkafkOGWKRktocE/s0GZzqhFcS7Rs+w9BnO7KD9ktFqPRaLWaeIf0dPnPkLwkT0TpJ4MniohTiNFtYRcBLfkqglJIvvskg1SMhEAObaphgqsw/PexQ+uLXHDx4/F4Op0GYVVZlrmySAR1PCUaD/9TJCMG+dcmqevIES4C/IFDAvmOTG9B4yYQ5pekGybopiiT1DB6cU1M8WOQH8ZJHyzGSOJXnGrPWhujZNyFUeBx0LMYhf7DGvyD0o5usHqUwh/pE2wotbUmRjZkegGUUFKyyKBinuHVsCmNpuUY65PvwNgXjuJT29Gt9OQGsBovPZYoAxLKmVvBCcsYbL+iwUQnLHYwaNc6hSID4ROy4B1UzBxejaFD7sjiRon0OIiIfBePA1IdWq7C8GxSw2Dc+xquBhwcCK9V4RtUzBheHe1g8o5IxgmhpNZEvtkO7YTHFC1H2voeS5FQ6EqkBqu55uhb1OHVaGtCuB9Qnq6Cevg1UYrId39D8s3l0EZeEWSKVpsMay2WPpVpAesQJ4Z5cuAEWsQWUxRUG4mQQ8ii0GWRbx6HltcUVQlRkvrxh17CzjEyT1PQPAVMEapiw91j7AxBlGyWCcn6d+uR7+j8ArajVzystXj2B9S8mHkCt8VZlDyXpwNXyfZn27YiTjvV++RuQ5r1t4nEbi3yzY4200yRXLUpIgoT3DmVNk9yvtbHpJa/RyPdEzUZefCLPlCeZlAN0jCH0Vrkmx1tJrPQlCmqrzMyctiCHAkTp9g8GbjpHUF1N0NSwQkq9xqLxHkHsOJSiaRhslkSHqzeb9gUURLCIrWuJVR7gT62UiQWmtO/ApxpRFnIM8cgCmATo0GjTdPJgENbvF22NpgII6VzSuD3E/zRVaFQg/ejCVzSYRFj5oioOaCyI6b5NiyfsdjBktAULbR6TRGcdhSmQ53KItLlbSY04DDCyKLyf4XslhqAshsRid2GfVUms3o/PbmhPFO0N5/P9/b2i4i9jY2UhjdTZApFVXhS/4p+gSaQ25iS/xZ529O0jOJolRob3nzLiIEd6DX7HlzfCoqTAG6mSJcgUgRpxFJEYQZKJwqHQ3yxQjRIGz/YJs2HWM8UGX5XVtCWlc8b+eHWP/3pz3/+87t3Ty8vz89vjn/6JcGKQ7CwkdLa6JZgnjLazgb0OVekJrj4PBUYktweK8/syqoUpKkDH6JCpihomePNKcmy/ODBYDCQjo6evLs4OZ7vITXIRAofKb0gbKZIlYkCfY2cxsIgR+IICs8gejNaSY2+kEOLmyKOdlmTH54MVh5Skn9OP787P54joPYY8k8zT1pG2xHddbrDw3BPCTPKLBJrGG4QaVBT6XqS3i1kitbFB4cKITUYfLg7v7kOlB/DTAHmKVPaRi4rL2AsbEICO/zbak6QMtWqzHpgFu02KA5tEVNkQg2NfuvcdDzxu8UW/gnLTsZTTZMZQEnu6aOLUKToApXdeBCovUwRrgoUvf+B+/7UfBQa9ReY9KgAyp5uErI0oYeA3xTh63CwMP94tRgqfuscRBh1XRmOJmONBpQ0ePLm+3kgULzmKfRyw/vDvxuRFvFPgSeztmFGlEglxeL6zM7JLcrGHVruyQ0EEZpOFkoKG2IlJI6Wh5VGxsn/n3v67mTOlCfMPPlebnpaAtSfcVXAWDhEVzI9EdUhUbvF2oJk5qs/4up9/iFCWRGaroa6mIGG1e6H/m2pDHNIyRFOkvuIBydscZKS6kt1AAI+LcKMVRJ3uEqJEpEia+sKkhG2T6V7BdAeSs7JDRmEZLSYss9ey0tCK/yTroymWZxcyR14/+fhdB7gRH/cUx+qR+UNRafAm8RQAg4BYbdGwd5Lonc2xWsyo3Z0jskNmckH0wigYvBkoQo7m7GaEqT3fHHycZLuHl8zzVNCI+wUSDo5d1fAxSQsU03HnhyIf6/lxyZlexMh06SqcKTz8HZmQZsEgc4N8MkjpQ/HWZxmIU5HF8dMcYqeICNlbnXyBByjmInIEzxMZC0St1ityb/jsr24O8GMnwSZZYoMfCeRtkK+yeYAZTKNYrooBImTzyOePJ6zYAp0sdqjSlJIAIvOssyH8LB8CGHW5dozY7GyvagKHQkkew4IbokShPolHzFXpOVbpxAm7x+nF57WY8ViHZMFUuHReTaJOiQTWkiDzNcdWJUu24sqt2ys3AOECNdzk6oQSuGE6z35gRvB5D71tN7+fpGvrGy+G80k2ZxkCA1pOsiaIGXL9vCGUIPXFE2H1BXjZeKEFf8EximAyUOrCEwmsd2u+JQioqjE+ow0e3a9qWIh+cYLYKItuT7Js2CvyMGE6LZKGcoPvFDGeZgGnnG68WDi/tKTErYMEkGKp8mTH4U1hs2TUiM8VXsOtgh5Wb0Q5YpKkg4XAYfpmEkh4tvViFkKqygrnhJLhx3IZV5rqhixYX0pMzBy0nquPoRItZieNEkRTJIvTXt8fFYnhUfVzSUpRoEMkljYmSX0zLA36ya2iF5AWiNMgwSmpzzSZBPvr6hNh7WmBam7goPTMuQb+/pjarw+2dA8vm0GISy3NcVgciOl95TtNxl0a7I+u8uCNCIv5bLWJd+pYhnQdbVaAVFcO5vA9ENkmgbS0TkTJaIfqhQ0SmR9FoMEDGMU5SL8jtQzwyjEsHFF1yxEcXtKrPQw0/SIpfNsUkNFKue0XsQhxT+A1WlFkn6khnV6y0ys6aatgAhJUzSCLtB5g9g0zZlfPl/vsyoU/CQukMaZPBAiXPKnz4uT70jTycNNIAIHoGwA0yhHxz2d95gqTBYU0lELsS5gNZpDSVuhKR1GFeQ7pt2kdjducNjorQVT3OyeCJMrPZlTUDKJrlKRrJ9BHKaAz8A2oGmMGufDUJB8x4RhrPfXGB6C93D7E1D86SeLaHSxouj6En9FUaRSpgkjEO4lRZhUSJR4jboF5OAn6VzPEuoRt/gwypDvPky+o+y6dlVQ02EJ8aDOZApVBcnadDIaKrq4FlJiNJDJP3zCZBIWGZKGTlGpsQhsYqfXyXI2y9qEdlEK+Y7EaCUWgSgeBqwro4kmc5bahXUrhYHCe1xjmucRCNgywd0ODq+ygyYpWIxibWSWLDZGK17yHZE6TSkyES7K1S2IRVqMo3lIif1iYdukPy9lmTyaN4c9EJ1Uy8NDvYAhR4TeDb0PLR6lDo+yCaNfYBG0E8LAe2MRQNkykmInKmUp8FuXiTANImE6/R6IjVvElQJ8nawWOB8xlXl1oPnQYioFDmE07nOSb6uoGBHLEtIF+Q+Cmvzo+P8qk6d2yeOoYGJ9YZKkCzg+mtf5S575aNBIotxWBqh5OhqXB4UNyBgB5NssaI0QQqN8caP8w4PwyvLnyD+nHz58+MtfCFBNGZ2WmV8fWaYEpYH09JpomMgK75aNkiNAA+eyKw3AUetiNOILJgFjkY98O/CMCUquRyN0SATozFxUi+W6px8+v7u8ODk5Pp7P50Ez0v7+//nf/2t/7/jfmU620j/qiOUTplFe5R3dEA2TRYw7MGc6OYTHHCh9NChzCFAKPN8nGY4/yMkRQL6teMCEyLmibDmcZqqDH4SoIDPu8a7Tz+8uPGjoOVS/ZyYtT0PO3KLvM8k5lDyWtwcovBV54g/M8azs9HVazMKG1wuISajEwspkUPnVpM9FvqN5FqM+5xa5dDmP4Cu4ND5Hny9P5tEjvRec/W/cvRkThRcmMVZ5s5jlvQEZ3hBAicyQw1shYkQKWRiUoYfeD2+TZ9pfSuc4NnDpAPlGi2qF/8mBUSYJFxYfuFKc4/H+dHR3gnrB9ud7ez3Ok27R4MwDJyqPaZhsgRjJVkBz4ZDnbcDBP4eyLDEIlZAYsKzkpukSyTcyRxqHqku3/0WlwAm7ck/vTq5D6Zlzw0PGCVxNnP1ASjb8MCCHH0hzUX1zMSWu50AuI1m3IMvuEH7DmDauTcnRrJXIN80DYTTmG7lxO8kg5CYIPXrD0/rV4yzoDseKciz1QVY5RR+O8/TBIJKARBYxqx4XvAPeSMiqVeJvGFE7+UV9iMbq+SGXhZ7/OETybfOaIxGf9RzGN1MIBbXamwBEqGbmgSkxTBhK7kkeJVMgL++MhAkZi4THjAFvhLQSIHner/r0oTpB9Mw7OqGAESDfFifzDqRonOt4CE21e3oZIrTfK+Vg4sQBUyIMOMk7z6PkQFG4/pAQ0NLAO4GjsxZz8jjuBeY8QoB8WwLf1Hk8kxPW7CRCdHp30+txlsFxJ/wT67RipkyS8IMcozRwL/IoWeQnPdUijDEXEcJoCLpXKm1EZTYbSnhnEvlWY8rAuoXlKtfngMoU/c6hchHKaj1mLDGhDxhK0kX+U0Hz20PXfCynenpE0AjCzpVBnO3FHTgmkW+E0ZI1LbsvLnCI3FjPDQIhKkvLgTCx0/jxCGbZTVB6A6CkQ5vfA2Oh69R+BGQ2LFpiYz2UUPjIImHEonXpOh0cIvfuuBIhIsA0ve2zPiUiebIbwyS9y3044rSgnIWghQ+5hkeugxLZQUIY0b+9nxWYECE6vfi5MiEiwMQK/MYLsDhQgu6Qo/iCnYcy19otA2QnVIG2ZyCfEsBqRz2Ijt78rVIhytdcsFa8RfQ1pfHyKJmbWI1IJdnMKsdCm7QwfW0QMFr1GTvQ40y1HHavIkZ3eV0PRKkiQMaWt3hNGc4eLktFia9mweQPhJaAESZGDzBG5wfHaoMoVWQ2ZHxeAkpvckx8fZR4VyEYVF+4TIzwHPUPWGAsaDqZ9+o9NiZMhWVpXo7VKLBUpNAOzjj/mLF0Ftseif0ooZgxRo/rlaJ8jQyVeiG79AOG0jmMUsFisqLrefiqReI3XgOjePB81FUcGqO/9v5zr5ETl8kwPraWiRANCGnANWy7WHAdmZMUjHDGS0zC1x3Tv2wUW8YSNa7E3QVZpTBRHTsCSq50DPhLBWx7HCA0Cn5cVvAxlgaDgPGU8lV9/5UgRu5JgxBhwqTd0sbs93U5m186nQNWgyM/EwddxoVXZKKPu1rC7rEfE9UIbxyKukbHaJTLpHlidN3b7zV7TA6WF0eIMJSO5kAsVNMLVVMUXDYbyT5QBSUmATfSQFdgO2i+cgCzRm8aFiPuaow42jpIQg9PCJ/d4jRMYlxHUnx4nRO34omphpPonyjgZpMeIFo0PY6veGod+5bHjYtRSoeMqZpgyEHEoxuks3q8kcNZ56mKdyNOkomA0VtH+RGT+PgofbZOT6m6u/3aXSPGw6lRdcEoR8RJlV4ms2RXTBJp6poTb7GcixaO1vSPrsSFv7mxdbbA2OSZZGYGqVq2lsgRpvJkqjaY5Ij43wkoocDgiGzZU3vxNpjunZkRGGxITuq7TPJTuKI9OMM8Rkc3LbBGeZVN296AyvFT5OEa1p6akrXskc2YCBuJUZJpJg99JgwLCknDtE8pO1rkzdHTecsw4sj6o6qbFHl4BJeJR4Ot0pltPc6p2yV85mylrr970ISeQHhdEqmiw3Uvei08tsDQ21E4jB5rxRGXJ1eJZU8NhS1vGVG4JyJYkGwD+3MsgVrMQq66OWmdGOH0gYbSMGeWbhi5EEEbT/z+3tTM8nr3RTn0rxXvTksp8uPWsDqymqKhNMlFHn6GrgZaE1D3XjxDEMjLNWJ71CWM2CjFUbykiQ0wS6FlJyFU+9I1lR4NinyLVE31dTt1HS9Kes4sPaYNfMC6pTybYTawFs+mRxqIGP2tzRjFKF3B32mYo0E3LH1jGKZhNPqFFqzvg4cZ7uYt8mBpKCnwt5rw8fA2+X/jIhi5x712C1KC0i28MlvO8/DWfqlQ2S3BL6NkMfJRetd6UYpQ0hlfDOPhTIXX8HcZgl9Fz2MUzfybdwElkA9FlBVTeJ+/7XVQ2cUhFLzipNg42sa9WqgWIOLhjEL+9ig7+GmLKyCxMXLx/IrrTqA04VZ47qCVysFg+uZY0y1W1IBqvs9bLkw2lbgSFN67Nn4fi8rsUOIEH50ppYXJH6DZZgZBTWRGDO9BqhKvdSiZArv9LDU6M2eaqDP/2mJyIe4aKTw8hnfdzq8wKtRw+cMgo/OefN9mmOh5MjT/vNXOks2q4CLOg8iYJsm9u26xKEV9DCLNw8C5w3XvW/ueMq7qdLpparXTZNPN0git3Gwrd2CyBpppSuu8RzftJRAWPaSi5fN/+20TJL1IzTNomjynad5aYRIE2pSsYasDrRa9PIhaDJgzTa501FoCQY18hUO1UiG84/Z8D5Maayhumjyn6ecCK/XqN0vQWEBEw/8ZE6XWfAuVmkVax2vi2bTS4HedUmn4bzCr1JoKG5New8VpmtIBPZe9aaVJ87voU2Y2CYNZ+0RJZRQVr+c1SdLlvI0oOVSFNylS71C3IGlr7ySnmKbTkzYKEyUjE4tSEhz63PtjtwWJZZok6a6FUVeDUpiCROk3bROljQSJZZok9/KfWidMNmyDY1Fy22WVrM0EiWCaZlLLo66UYDISJTzscNwS4V+H2vGapmA9ZbtUHiUtQxClFkTwbK4UxWamqXVRVwvOpSNfKR122G+BIAliv4S1ibBpktrmNFGC/ijsgAfD75r+6HbRqN16XpPnNP3UJpRsOO6Qi+A1n6JVi4W/1zZNjY0booXDAVG6yjq0DceGzCJ5pM1MU7jfui0MIog7aH1KXglzaB+1wIIq/TIX+VJMk9+02RZhUimiNMqz8AYfLmNjR7aQaWp4NhSnKMUsPAHpaZMf2l4rR7GBaQrK8/ZbL0qT7L6E66Y/qN4vf205xTQdnbTDaXIE4qJFjIW3o1DSpPbHVmSaJL9/sw3SBItSRB1mbaAOFdAGnjKIlpSqOCCzzVEHvwSvSWdBEysCKW+aZi0rVQEjeIg6sOZ31aftRpVhRDNNQaZpvw2itIKX8aVzf9uo7Zim6aj5tC0Yt0QleHhD+vfNartqD+g1tSDqCi1ajvWd23jnn1O5tmN4TZJ78VOjOs+gOLTjdoSGrKqcJO7i8cYbBEEWntd3g+Pt1XYM09RwgyBlabneim4lsyZtR/SaZvg4/gaFCawdiPhdw2WSdg3cjsc0NRp1pVCHRZbfXTekj+XaIKJ5TWGmqV35NIK+ayD1Z1QYt6OaJtI0iIBANAKUCnaVofid22Spg7N5ud3mXtM/JwvRG2oQpOi7VYaEf6j/49VHwPlMU0NRVwPWd0q2tKt+o0TJ8Tdjmjyn6aYBAqECoSHvR40bJbPEUq6yTFMjDYI2VL0fkXBs9Hndku7UTMD5vCbJrb3uC0x8oqQSbpT27olJYpgmqf76fhUIvOSMUv2Du9TGTBLDNEluzQ2CNjD6U+wv85UOtepio0mTxAjo1Vzfb8IVU1mjVHN6thkviWGaEp1XZ9SVQsJXuXRFrYrYbtgkMcogglrXeY2aXyaS8Ey6AtjbU/sHa4tpcmuc6wpFmnPhO7fmGcdl1+mX7zVJru80NWmU0DTJxmokjVpzSWtW6AXNMvNGjVKWObypkzmYreANLK9JqinTBHtKWeZQa+F+W3gDyzQFUde9pm6DwBxqjzeIbQIJ8JrcOiZJOUD4LhdzkNw6/SS1vBoUkXo295o8AlF1fT9kofPZ2UGdJZJlkTtPGKca7egbzdCbRTqvYmGCK/e15rIVpZE7lHSBT1G7RzRNlTtNMHMYZ1r+Luqjd6WRu2gwfWkgAV5TxQ2CFsgcVpm6rnf1gVRaMqkCkCDTVGWDoAPGHBa56N1/7xwDLw2kLN8Qh0LGa5KkR99XRSAgzYJGOuBzNzrIwKuQpPD8vj+SM6bJIxD/oRphguldloN/qI+Dl8bAywJJVLLnSlFiApGYpqOKCASQQs+HWAf1gjQtZ+ZTSSAJjPMg0nk+gdiv60LyFUMl9VacHfrnbJ0Hp0GQNBZKsWmqJAJhQaol6yjRx6q9DS7/7C39lyXoeC+uIXdeH0ixaQprXffqMtLTzFg1eCLr2cOH0R8fPoSFJPhPr373+vXrV18DnCpPVNQJkn9ZiEBc/kvJKMEh1qw3ewJQlzP/sg+/+pf/9f/6fyTD5P/49YuXz4J3f/byxWuEWpWJilJBkh+wTpTZKV3nwY7SJJNR+q9kkDwh+vr847Pw7zz7+PxV8CPSy56/TP2Glx5MZ10CSWKeqhoEYZCyBZLEgayeGH198Qz/i89evCII02Hvdy+RW7hcLtFv+/iKiGd51avlgpRaEcg45UZdYW92xJH28zTd82fx5Ueh/xfBf0jL0fPgyj79OPMDTbPfvv81ELznJJTaCpJUACTUIFimN7sA0350kDwx+hi8+Mt3/uXPZt99Cd7o5as0Sg97L/wff5odHIRvdnBw8Ntf/R+RUHJKy8tWD5ILaT7XDXVexSGHbG72c07JnvW+PvMv4kfs8mc/+lTx2VccJR8j76ffHXgwhhFb758HB9/5rySgZHcHJOnD9+ePgXPz+Py4TJBWPHGhHEhnZ698jDz5GKC79/95MPvio/Tq7Vkib8/9CMbsYDbDvp8H08z/ra+zqrFTINU04wKMC2VBepInbC+9l70/GOB37/3LwXvvxy8PHyLP9vDtK+/99EH6Zf4rA5SevcrSDLvEUeDlJP1gkD7v/Y99+DQP0lmgxN4fzDKsx50d/Oj9hxeRHvOx7IuzHEY+Sr/FX1hFGYo4XNAO5++gSVIt+WqVnEAX+7cZkB5lnVNfQL4c5O/eu/wv3n/63Vukx157b/Yd6XXeC997L3z19jAHktyqWqH2gqTTE0oPex6xW0IMdOlRvEhCPEH6RMQIvfBFr0KQSqkW6ipIZz1fkMgC4knId94bIErw1XvdbwGQfM3Yf3bYe7uTpCpAClwffQAIyOzg11hCgteB3rrPHV6nw0M7kMoC6dDXYu8PQJB8CQnvnvY674WfcvpuB9L6ID3JaTuPslEl5FWA0jNQK0bU4WOa37UVJLdrIP1j73cU2oAYQRhNoILpWy+PYpy1uxIcSdKsYxQ8iJj+CgpIqMb+TQLSgAZShjm0FKTsBtQ6QeJ2Zh/leMMnGkhf+shNFdkgPUyBZIOTqZoFiQCT9Ghv3iqQUrG7AiBxSFJVsbvSQIojgHJm7fPnehqcuQOsT9MgPWeA9CkC6RnsJiEa+DLN7toHEtaZ5MGE7x9xL36uASY4VXGVA2kvAxLN/Rn8Gtkkj4L/SAHpi8/uDnP5pNt2tZD19ZWAF0O6ycaEi3nlbWT8Sb/UZMJDn92xKHgYcqDrxYQFVpCZLU/feR9mOZJxmJLZXaeX1xXDBKfPsxX7mdbmVzT/JzQ1r1B8FTZKfhy83/+apuBm+0AKYRKHWq4aMoDp6LJaaTK5C1HSDUpBfPUTDNKX2Ef10XwPxu4+YZHY0quFaoTpzb9UCBNcLZTtP09PcjhDEuLC2i7SYi+AdFIkSNkMulHNkrhyYMJGtGZgOu9VBhNcHJmtu8v0Y549fAaKUiBIz/71beD9+El2UOb8lMbbw7cVVbBWgJMP01ggMHIpGHlcDUwWOOMzU8HqHuertIBkXpipeN77R6zEgaDw3P8SJAdf50okm5g2XUicyIxckp74MO1XAxJ521c6qJhvfTkM0+L5yw9rF17Gtd6HnvkSPRruzjIs/eALKXsORqpaBdOIxMgl6dFJr4LeF7j1JT1dKN9EFubP8yh5P1j6AhInxc8Og6qi9wd4udBsdjD45BesnD0kN5H1W3xgRu7BdF4+TLxNZIR2TF+P9VE5XVKFMjj4rYgpO6w+71e/PG8WnsHBwXd+eO7lvx6+JUq3LLZXlKhUD41p3S/blx3xZSr28zVdPkr9955QoMsfDA5m78NK44fpSle/+qv/6TsPp+DMvvsVVYOf8ZOZFsI0JcNU7mAo2JdVaFGhTIn3e18y/DOYvQ8kIMuqD3uHL8JRFZ/ev//x/ZdfxeDfXpD7Kpw2erMQI8eo3mCWwFRmJxnsJg3pAYcIpddBs4S49C7//ftPYb/Es9c5MnB2hl6JnY+ve4dvq+19qQMnJU31ollMd+VJE+wmjai+bILS2+fP0n/12YtDQhX+W+9Hrz8mL33mQdQ7rLrVryaqtyIw8hJhYo2tSSj492QHwLvnV3h32Eu/i4x4+T4lf/X6+YuPHz++eP7a+5eHhwXZTMcYeQjTvBxyR3ZJtFTLrDv4GXgHX0R6X5//v4/B5b8Kir+Blx4+zGBG9ws6cwIOsUio3g/xbEn3roTIK0zuRCYDx2A6xKNFtA70t4eHhw8fPjx8ePiW5WG3nINzMvKwSWlvc94wBBn4D1QGngrk+Xfv/d9ZpZay9VQvz8hdSbr8eTOYYN6QzcvWOii3IxycFXydIZjczdJN8PT2LLl7XOegXLND9C4rTrf54KsrnfowzUvmDTlyN7jp1Xk6Re8ojFyIYVo/eQs/sWKG3J3WvwZB6yBG5ODrLMwKXqxXCsG9BqHufcBW95gDTPUQI/dgeryONMFb/fKRu/pX8ygdBQlk5JL04WSvMEwCMFguzxtq3rzYVebAYuRSMKu10F2CV5EPCh33erUzh3GHQQLLIcKsYAGYYJMUpmWTIpTTn2oGqf7N57WVQxQshYBuIs8bat+rbXfbKNGDrx5M3KUQBrzCNDuy5nEjy4AXnQcJKoeQ3Eecq1Apy8+bNknwZqdtoXqSGyRvv3ERcB02SYMmxk2zvIPuwjTNwfSULU2sBfVyQxuu6jNKYqFTbjlEAJP0lJW8dWBtN2raJLXRUxI3/+u5cgjJvaNXrEDaLl7oJ8VZ2ete/UeovEIyPzefdjYPUhEYeaD0KDBRtF1IwGd4Y2j9p+rwHfqa3KeUfU4kRh7m2OdFud0wl/Dbqx+kqjdrowXv3KccfyAsh8gwckkC8hi/CBB9ippekjUVf29Ckqom4c2ARGTkMwgmE/Zkw4b4hICf7jUBEmwzuw0SgikTfCXn2C2I4uYJ+LteIyhVrO+aA4kcfHWl04u/pWEKlAl5kUio7TCTdFxvwq8mfdcoSMRyCClbCmHDvxdpOzcONzSj7arWdw2DRCyH8GB6gyk9AXaSstruTa8hlKrVd42DRA6+SqePo3STA5bj5LQdVARek76b1gqSDJ9KnhZSOYT04fG3ACYVpg3hJO1BEwsXa9V3ZJDAtTu/GVY1uTcfI5dOTyL+PSUL0jCj7S5686ZAcqqM3wEg/QP5lAcS+WSCr9Ln8/8IClKcSorjdu68OUnqCRWW3zUEkjiZjqe5Mx6PU5/Cw+kvFP4dxu1qH41Iid9VlK9oCiSZa/Pcg4EM0qZ8luK8SZDMCl2lpkDSCjBK8oCNyEmKZ7GcNqntKqUOXQAJEKSr9tCGiqlDoyDJrINAIpukaUrbue51o4IUukrV9Pw1CRJ78xzNIoW0wW2u3o5IHYb3DSTpAcxrWxNbzVAHbdvUHQMkdyBQfKQwoZzEVh/1Gj9qVSy8xSBJMhwQQ/xbbqyXAhSl6XaDlNmrKVEEqR+F7TD+/cftFaUWgfThCD+nRzLcjYrmF7dLkBALH28zSN497+e+Mdk7FPOO7HWvDUeoRpQaioKTQdrLfWEgIUuIf++1AaSKRKlYPkmTawPJgstCxbZFhKoWpYYys0yQTMrXba0gIVGa3heQBGDDCzG0+mG+39tmUWopSBYt+p3zkR63RZAqEqV2guRQld1SaK0gIV+p5AheK0EyaMoObaaQW5LsI4qSVm4wvJUgqVRlp2cE6VGbMEIffrT1INnUeFBYfiLj4e9WHVMoPUXbRH8SAyST9otQ1SomSO/aJUiI9JQ8XK3uTj8WSKFBAt32MKebJGSlea9lxxAqLBziFb2KQVJpaWhEv7Gq1TdtEySkrsvmDrV1n/OAZNENUqicHySsYW+/17ojVFnOWqM8QiDZVHrSetZQGXdoD0g/IS92AmI0bDtrwLjDtL+VkoQeQQ00SGJG2Z3O99uIEeIOw46LEhmk8LvJS1CQJhnW8LidgkTNWHYbpPPQ4IJbqvMu0l1bMUIcddrvNEokkN6oVAcjUnZyoux+/tZWjJBSGG0ZSKg4CFbkiNlhpXbf9/6ptSAhhXfbZZRyIElhSTH87HWG2fU4osTdBCnCaNUXRWqMEVN2e63GCCm8yfaAFGE06cMGScswu+Ney4/TdR6eBomJUZTpw5TdSbuVXezSdpiHp0CKOAMNo2HGjX3Xfow6b5ZwkHgwyhqko+v99mPUdbOEgcSDUWSQ3Kir76bXBZCQWeqqt5SAFHaK+bwOxijykLpkkHCz1NHx+xFIboTRCI6gRIm+jhkkzCx1lDyEILkRrfOJKozRMGOQnnQHI2SWukkeIklCGF3RMLoVUpNPpKN5r0MnzL50MtSK9vChEiSKzo6rmZJ16se9b11CKc5jip0EKRp4otMwiohdrOxuOqTssDLCVb/LII1FGkbhSA2MNDzuzXsdO1ZHiXgCEoXW+f9hksHoTfcwiihe56J4MUgKRVeLUcQuIXaXXdN1XUYJgTRdUj63GDlIchfy5RxEvGtObQjSiEpMY4yiaFBnMeooSj5IssLAaIHI9yx2Yrt7zA6i5IE0pnrhYoJR5CA9+qm3Q6lekBZ9BkajLEbzXm+HUq0g6VQP3PtPWYyeXPd6W4FSlzie2C+G0U+93vagJG4FRqsMRnd7vT9uDUqjfvfXncZJPgyjbYAoQWnVeZQ80jfNYHTZjWQ5P0rjjq8OFvu6lsHoorM+LOjVastO1x+j1gl/VwWaJ3nSm/e25xhhHE/ucDlelCv3MJohjG62CqM42uqRvI6Wp8TUW5ZclCv/+7ZhFOWXOkryPGuKaN2D2D2ab5E9yuRqu0gfxIQyIIxc6Wlva3gdoe5B0JSOVT54HxaZIwGjDN9623lMoYuGyZP8VYbWnR5vo6pLk7xA5YmdU3UII1e6m28fZSAYJkZWrZWqDpkjyb3sbbEc4YZJGHWBP3hitBxnzNHR8bZDhKk87bb1woSJEVJ1knv313uAUaLyAmES2y1Gk1jVuaEYnfTuy4lYntZiyyQSxEi6u74fYhSqPBR+EFZtFSZ/N/04WaUditF57x5hhPEHedhvIUzeJxJHQooxSD7xvlcQ4cI01dsGk/9pFC2l6lzpyU3v3mGECZOv81pkmkRc08Wk7vJeQoTTPJ/ntQQmH6LlKvpcDwKMJOnp9ZaGU7lonhrxvGErYPIhSoyRjCB6dHxvxSij87SrftMwBRAt4v30DyTJh8h3je41RD6BiHXeVOk3SSECiIZaStN5ED3u3WNNR+B5SOmJLZAiGUF0Od+JUdY0NQVTwOhGOESuB9HpxQ4iMkzySK9Z6wW/S58IGYiO3uwgyjGIGCZhUqNxEkNTNMUhkjyUHp3/dQcRVZo8rbesA6dwvwWm5/yaOsn1ILrp7SCCYLIETJzEanEKERKHYyElRb6e20HEDZM2QjiJlSGkTIQMRIMn574p2pFuTr+pKpzECKGVjK/r9m3Rh8vvvY8w36FQTJwEbRXgVBJQ0Zql5XAipzaqe0L04c6fQvxtp+e4xUnFr3A81EX8ijcDSFRG4/TOe98nency31mijcTJE6gJAqq/xtKx5K+I+nCipd74B98lujj2e5N3lmhznHygFBG7djZW+KtE3ZMgOf2OvxkMjp5cBLPW93ZCVBZOPlILRRczMDB2/Pn4ZATI13IPPjy5vAlax3cytClOKfuELng6GQ09rESWIOnK0INHzr/Bgw/vLv/b9U6ESuQRjqUS9/9q0/FktBheKYqeHEVRhsPFaDKeasS/pP7p37+5CUVnf74ToVqAKnRU2zT+U/iGezt3qBqgTHt9pFTLMaM3+rc7FVc1Uk5BqFTLdozdxTWFlaVS0FJVy0PH3MHTBrQM03Qcx46O92fHNI0tw+b/A21urJN8RI9QAAAAAElFTkSuQmCC" alt="CELCO">
+      <div class="arrival-text">
+        <div class="arrival-greeting" id="hGreeting">Good morning<span class="accent">.</span></div>
+        <div class="arrival-date" id="hDate">&mdash;</div>
+        <div class="arrival-tagline">Project Coordinator Hub</div>
+        <div class="home-collrate" id="hCollRate">
+          <div class="hcr-label">2026 Company Collection Rate</div>
+          <div class="hcr-value" id="hcrValue">&mdash;</div>
+          <div class="hcr-note" id="hcrNote">Loads with IMSR &amp; Payment reports</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div class="section-title">🚀 CELCO Tools</div>
+      <div class="section-meta">Your dashboards</div>
+    </div>
+    <div class="tool-grid">
+      <a class="tool-tile future">
+        <div class="tool-soon">SOON</div>
+        <div class="tool-cat">CELCO Tool</div>
+        <div class="tool-top"><span class="tool-icon">🖥️</span><span class="tool-ext">&nbsp;</span></div>
+        <div class="tool-name">Command Center</div>
+        <div class="tool-desc">Shop-floor scoreboard display.</div>
+      </a>
+      <a class="tool-tile celco" href="https://elvincelco.github.io/celco-dashboard/celco_team_dashboard.html" target="_blank" rel="noopener">
+        <div class="tool-cat">CELCO Tool</div>
+        <div class="tool-top"><span class="tool-icon">🏆</span><span class="tool-ext">new tab ↗</span></div>
+        <div class="tool-name">Scoreboard</div>
+        <div class="tool-desc">Sales, collections, profitability, growth.</div>
+      </a>
+      <a class="tool-tile celco" href="https://elvincelco.github.io/celco-dashboard/wip_published.html" target="_blank" rel="noopener">
+        <div class="tool-cat">CELCO Tool</div>
+        <div class="tool-top"><span class="tool-icon">📊</span><span class="tool-ext">new tab ↗</span></div>
+        <div class="tool-name">WIP Monitor</div>
+        <div class="tool-desc">Work-in-progress job budget health.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div class="section-title">📅 Division Calendars</div>
+      <div class="section-meta">Borrowing a tech from another crew</div>
+    </div>
+    <div class="res-block">
+      <div class="cal-intro">These open the Google Calendar in a new tab &mdash; they do <em>not</em> change your dashboard view.</div>
+      <a class="res-link" href="https://calendar.google.com/calendar/embed?src=celcoservices.com_uucscs1qnr7r5j7mmqbd4pja54%40group.calendar.google.com&ctz=America%2FLos_Angeles" target="_blank" rel="noopener"><span class="res-icon">🗓️</span> Main CELCO (all divisions) <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://calendar.google.com/calendar/embed?src=c_634bfe6b04d1f25e3ad1be4fc45bac60a4dbb82d1f5a1fef1cd803010fa19793%40group.calendar.google.com&ctz=America%2FLos_Angeles" target="_blank" rel="noopener"><span class="res-icon">🚨</span> Emergency / Mitigation <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://calendar.google.com/calendar/embed?src=c_63f188cd9b0dd0d43f0226fe9dd44cdd5ba3a0e4072280485707898ff7419ab1%40group.calendar.google.com&ctz=America%2FLos_Angeles" target="_blank" rel="noopener"><span class="res-icon">🏗️</span> Structure <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://calendar.google.com/calendar/embed?src=c_551f1c0730acc26eee00e8a2c761b48969867b4fa932a2da003b0e13694dc0e3%40group.calendar.google.com&ctz=America%2FLos_Angeles" target="_blank" rel="noopener"><span class="res-icon">🔧</span> Maintenance <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://calendar.google.com/calendar/embed?src=c_2d519e7f38874c93aea45989950b5967c8d1b9fd3cd6d5d522e678b2d36f920e%40group.calendar.google.com&ctz=America%2FLos_Angeles" target="_blank" rel="noopener"><span class="res-icon">🔩</span> Plumbing <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://calendar.google.com/calendar/embed?src=c_80946906290b1aa9b03f4184c710010ec84510edc8499f60b39a4b481be4db78%40group.calendar.google.com&ctz=America%2FLos_Angeles" target="_blank" rel="noopener"><span class="res-icon">⚡</span> Electrical <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://calendar.google.com/calendar/embed?src=c_5096b103e5892f79e3b446d6aeae18324e86ad68edbceb4e0d74f919309bd102%40group.calendar.google.com&ctz=America%2FLos_Angeles" target="_blank" rel="noopener"><span class="res-icon">🏘️</span> Irvine Co <span class="res-arrow">open ↗</span></a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hdr">
+      <div class="section-title">🧰 Resources</div>
+      <div class="section-meta">Everyday tools, one click</div>
+    </div>
+    <div class="res-block">
+      <a class="res-link" href="https://dash-ngs.net/" target="_blank" rel="noopener"><span class="res-icon">🗂️</span> DASH (Job Management) <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://drive.google.com/drive/home" target="_blank" rel="noopener"><span class="res-icon">📁</span> CELCO Google Drive <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://app.companycam.com/users/sign_in" target="_blank" rel="noopener"><span class="res-icon">📷</span> CompanyCam <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://www.ilovepdf.com/" target="_blank" rel="noopener"><span class="res-icon">📄</span> iLovePDF (PDF tools) <span class="res-arrow">open ↗</span></a>
+      <a class="res-link" href="https://my.geotab.com/celco1/" target="_blank" rel="noopener"><span class="res-icon">📍</span> Live Fleet Map (MyGeotab) <span class="res-arrow">open ↗</span></a>
+    </div>
+  </div>
+
+</div>
+<!-- ===== END HOME VIEW ===== -->
+
+<!-- NO DATA -->
+<div id="noData">
+  <div class="no-data">
+    <div class="no-data-icon">📊</div>
+    <div class="no-data-text">No reports loaded yet</div>
+    <div class="no-data-sub">Drop reports above to see your division dashboard</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+
+  <!-- MORNING TRIAGE -->
+  <div class="section">
+    <div class="section-hdr">
+      <div class="section-title">🚨 Morning Triage</div>
+      <div class="section-meta" id="triageMeta">—</div>
+    </div>
+    <div class="triage" id="triageStrip"></div>
+  </div>
+
+  <!-- TOTAL RESPONSIBILITY (hero strip — anchors the page) -->
+  <div class="section">
+    <div class="responsibility-strip" id="responsibilityStrip"></div>
+  </div>
+
+  <!-- AR AGING + WORK IN MOTION (symmetric bar-panel pair) -->
+  <div class="two-col section">
+    <div class="panel" id="agingBars"></div>
+    <div class="panel" id="workInMotionPanel"></div>
+  </div>
+
+  <!-- COLLECTIONS THIS PERIOD (full width, KPIs constrained) -->
+  <div class="section">
+    <div class="panel">
+      <div class="panel-title">Collections This Period</div>
+      <div id="collectionsBlock"></div>
+    </div>
+  </div>
+
+  <!-- MY INCENTIVE TRACKER (pilot) -->
+  <div class="section" id="incentiveSection">
+    <div class="section-hdr">
+      <div class="section-title">🎯 My Incentive Tracker</div>
+      <div class="section-meta" id="incentiveMeta">Coordinator Collection Performance Incentive Program</div>
+    </div>
+    <div class="panel">
+      <div class="pilot-banner">
+        <span class="pilot-badge">PILOT</span>
+        <span class="pilot-text">We're piloting this incentive tracker — numbers shown are <strong>informational only</strong> until the pilot completes. Use this time to understand the metric.</span>
+      </div>
+      <div id="incentiveBlock"></div>
+    </div>
+  </div>
+
+  <!-- LIGHTWEIGHT WIP -->
+  <div class="section">
+    <div class="section-hdr">
+      <div class="section-title">🏗️ WIP Budget Health</div>
+      <div class="section-meta" id="wipMeta">—</div>
+    </div>
+    <div class="panel" id="wipPanel"></div>
+  </div>
+
+  <!-- STATUS PANELS -->
+  <div class="two-col section">
+    <div class="panel">
+      <div class="panel-title">📋 Pending Sales <span style="color:#888;font-weight:400;font-size:9px;margin-left:6px;text-transform:none;letter-spacing:0;">💰 = costs already applied (&gt;$150) — work started before sale closed</span></div>
+      <div id="pendingSalesPanel"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">📄 Completed Without Paperwork</div>
+      <div id="cwpPanel"></div>
+    </div>
+  </div>
+
+  <!-- ESTIMATOR PIPELINE -->
+  <div class="section">
+    <div class="section-hdr">
+      <div class="section-title">📈 Estimator Pipeline</div>
+      <div class="section-meta" id="pipelineMeta">This period</div>
+    </div>
+    <div class="panel" id="pipelinePanel"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-title" id="modalTitle">—</div>
+        <div class="modal-sub" id="modalSub">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal(null)">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CELCO PC Hub — Project Coordinator Dashboard
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── DIVISION CEILINGS (from division_ceilings.csv) ──
+const SUBDIV_CEILINGS = {
+  'Structure':               0.55,
+  'Fire Restoration':        0.55,
+  'Consulting':              0.50,
+  'Upsales':                 0.45,
+  'Water Mitigation':        0.25,
+  'Mold Remediation':        0.35,
+  'Fire Mitigation':         0.90,
+  'Contents':                0.45,
+  'Abatement':               0.60,
+  'Cleaning':                0.50,
+  'Roof Tarp':               0.40,
+  'Temp Services':           0.40,
+  'Plumbing':                0.55,
+  'Residential Plumbing':    0.55,
+  'Electrical':              0.55,
+  'Maintenance':             0.70,
+  'Maint Work Order':        0.60,
+  'Maint Insp PMP':          0.50,
+  'Irvine Mold Remediation': 0.25,
+  'Irvine Structure':        0.65,
+  'Irvine Water Mitigation': 0.25,
+  'Irvine Plumbing':         0.65
+};
+const SUBDIV_CEILINGS_LC = {};
+Object.keys(SUBDIV_CEILINGS).forEach(function(k){ SUBDIV_CEILINGS_LC[k.toLowerCase()] = SUBDIV_CEILINGS[k]; });
+
+function ceilingForSubdiv(raw){
+  if(!raw) return null;
+  var c = SUBDIV_CEILINGS_LC[String(raw).toLowerCase().trim()];
+  return (c===undefined) ? null : c;
+}
+
+// ── JOB-NUMBER SUFFIX → DIVISION ──
+// Extracts the alphabetic suffix from a job number and maps to a parent division.
+// Locked decisions:
+//   STRUCTURE:   STR, US (Upsales), CST (Consulting)
+//   EMERGENCY:   WTR, MLD, RT, CON, ABAT, CLN, TMP, FIRE
+//   MAINTENANCE: MNT, MWO, MIPMP
+//   PLUMBING:    PLM, RPLM
+//   ELECTRICAL:  ELE
+//   IRVINE:      IRVSTR, IRVWTR, IRVMLD, IRVPLM, IRVELE
+//   MEDICAL:     MEDWTR, MEDSTR (Medical Facilities — UCLA-style large medical jobs)
+//   Excluded:    WAR, EST, MAR, SHOP, OFFICE, BU, BID, INVT, WHS, LAB, SUPP
+const CODE_TO_DIV = {
+  // Structure
+  'STR':'STRUCTURE', 'US':'STRUCTURE', 'CST':'STRUCTURE',
+  'FIRESTR':'STRUCTURE', 'RFG':'STRUCTURE', 'INSP':'STRUCTURE',
+  // Emergency
+  'WTR':'EMERGENCY', 'MLD':'EMERGENCY', 'RT':'EMERGENCY', 'TARP':'EMERGENCY',
+  'CON':'EMERGENCY', 'ABAT':'EMERGENCY', 'CLN':'EMERGENCY', 'TMP':'EMERGENCY', 'FIRE':'EMERGENCY',
+  'COM':'EMERGENCY', 'HOA':'EMERGENCY',
+  // Maintenance
+  'MNT':'MAINTENANCE', 'MWO':'MAINTENANCE', 'MIPMP':'MAINTENANCE',
+  // Plumbing
+  'PLM':'PLUMBING', 'RPLM':'PLUMBING',
+  // Electrical
+  'ELE':'ELECTRICAL',
+  // Irvine
+  'IRVSTR':'IRVINE', 'IRVWTR':'IRVINE', 'IRVMLD':'IRVINE', 'IRVPLM':'IRVINE', 'IRVELE':'IRVINE',
+  'IRV':'IRVINE',
+  // Medical Facilities
+  'MEDWTR':'MEDICAL', 'MEDSTR':'MEDICAL', 'MED':'MEDICAL'
+};
+const EXCLUDED_CODES = {
+  'WAR':1,'EST':1,'MAR':1,'SHOP':1,'OFFICE':1,'BU':1,'BID':1,
+  'INVT':1,'WHS':1,'LAB':1,'SUPP':1,'VEH':1
+};
+
+function extractJobCode(jobnum){
+  if(!jobnum) return null;
+  var j = String(jobnum).toUpperCase().trim();
+  // Strip trailing -digit (e.g., -2, -12)
+  j = j.replace(/-\d+$/,'');
+  // Find last alphabetic run (IRV/MED-prefix combined or plain letters)
+  var m = j.match(/(IRV[A-Z]+|MED[A-Z]+|[A-Z]+)$/);
+  return m ? m[1] : null;
+}
+
+function divisionFromJobNumber(jobnum){
+  var code = extractJobCode(jobnum);
+  if(!code) return null;
+  if(EXCLUDED_CODES[code]) return '__EXCLUDED__';
+  return CODE_TO_DIV[code] || '__UNKNOWN__';
+}
+
+// ── STATE ──
+const DATA = {
+  ar:[], payments:[], imsr:[], wgp:[], aging:[]
+};
+const LOADED = {ar:false, payments:false, imsr:false, wgp:false, aging:false};
+let currentDiv = 'HOME';
+
+const C = {great:'#4ade80', ok:'#ff6a00', watch:'#facc15', alert:'#f87171'};
+
+// ── HELPERS ──
+function fmt$(n){
+  if(n==null||isNaN(n)) return '—';
+  if(Math.abs(n)>=1000000) return '$'+(n/1000000).toFixed(2)+'M';
+  if(Math.abs(n)>=1000) return '$'+Math.round(n).toLocaleString();
+  return '$'+Math.round(n);
+}
+function fmtNum(n){
+  if(n==null||isNaN(n)) return '—';
+  return Math.round(n).toLocaleString();
+}
+function excelDateToJS(v){
+  if(!v) return null;
+  if(v instanceof Date) return v;
+  var n = parseFloat(v);
+  if(!isNaN(n) && n>40000 && n<60000) return new Date((n-25569)*86400*1000);
+  var d = new Date(String(v));
+  return isNaN(d) ? null : d;
+}
+function daysBetween(d1, d2){
+  if(!d1 || !d2) return null;
+  return Math.floor((d2-d1)/(1000*60*60*24));
+}
+function showToast(msg, type){
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type||'');
+  t.textContent = msg;
+  document.getElementById('toastWrap').appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){t.remove();}, 250); }, 3500);
+}
+
+// ── FILE HANDLING ──
+function handleFiles(files){
+  if(!files || !files.length) return;
+  Array.from(files).forEach(handleFile);
+}
+function handleFile(file){
+  var fname = file.name;
+  var fnameLc = fname.toLowerCase();
+  var r = new FileReader();
+  r.onload = function(e){
+    var buf = e.target.result;
+    // Sniff first 2KB for HTML markers. Use Latin-1 to never throw on byte sequences.
+    var head = '';
+    try {
+      var bytes = new Uint8Array(buf).slice(0, 2048);
+      // Latin-1 decode never fails
+      var s = '';
+      for(var i=0; i<bytes.length; i++){ s += String.fromCharCode(bytes[i]); }
+      head = s;
+    } catch(err){
+      console.warn('Head sniff failed:', err);
+    }
+    var headLc = head.toLowerCase();
+    var isHtml = headLc.indexOf('<html') !== -1
+              || headLc.indexOf('<!doctype') !== -1
+              || headLc.indexOf('<table') !== -1
+              || headLc.indexOf('<tr') !== -1;
+    // Diagnostic logging — visible in DevTools console
+    console.log('[PC Hub] File:', fname, '| size:', buf.byteLength, '| isHtml:', isHtml, '| head:', head.substring(0, 80));
+
+    if(isHtml){
+      // Use UTF-8 for full body decode (will fall back to Latin-1 if needed)
+      var txt;
+      try {
+        txt = new TextDecoder('utf-8').decode(new Uint8Array(buf));
+      } catch(err){
+        txt = '';
+        for(var i=0; i<new Uint8Array(buf).length; i++){ txt += String.fromCharCode(new Uint8Array(buf)[i]); }
+      }
+      parseHtmlReport(txt, fname);
+    } else {
+      if(typeof XLSX === 'undefined'){
+        showToast('❌ SheetJS library failed to load — check internet connection and reload page', 'error');
+        return;
+      }
+      try {
+        var wb = XLSX.read(buf, {type:'array', cellDates:true});
+        var ws = wb.Sheets[wb.SheetNames[0]];
+        var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false, dateNF:'m/d/yyyy'});
+        parseXlsxReport(rows, fname);
+      } catch(err){
+        // Last-resort: if xlsx parse fails AND filename is .xls, retry as HTML
+        if(fnameLc.endsWith('.xls')){
+          console.log('[PC Hub] xlsx parse failed for .xls, retrying as HTML');
+          try {
+            var txt2 = new TextDecoder('utf-8').decode(new Uint8Array(buf));
+            parseHtmlReport(txt2, fname);
+            return;
+          } catch(err2){}
+        }
+        showToast('❌ Could not parse '+fname+': '+err.message, 'error');
+      }
+    }
+  };
+  r.readAsArrayBuffer(file);
+}
+
+function parseXlsxReport(rows, fname){
+  if(!rows || !rows.length){ showToast('❌ '+fname+' is empty', 'error'); return; }
+  var headers = rows[0].map(function(h){ return String(h||'').trim(); });
+  var key = detectReportType(headers, fname);
+  if(!key){ showToast('❌ Could not detect report type for '+fname, 'error'); return; }
+  switch(key){
+    case 'ar':       parseAR(rows, headers, fname); break;
+    case 'payments': parsePayments(rows, headers, fname); break;
+    case 'imsr':     parseIMSR(rows, headers, fname); break;
+    case 'wgp':      parseWGP(rows, headers, fname); break;
+    default: showToast('Unknown XLSX type: '+key, 'error');
+  }
+}
+
+function parseHtmlReport(html, fname){
+  // Job Aging Report is the main HTML one we expect.
+  var doc = new DOMParser().parseFromString(html, 'text/html');
+  var table = doc.querySelector('table');
+  console.log('[PC Hub] HTML parse: table found:', !!table, '| html length:', html.length);
+  if(!table){ showToast('❌ '+fname+' has no table', 'error'); return; }
+  var trs = table.querySelectorAll('tr');
+  console.log('[PC Hub] HTML parse: rows:', trs.length);
+  if(!trs.length){ showToast('❌ '+fname+' is empty', 'error'); return; }
+  var headers = Array.from(trs[0].querySelectorAll('th,td')).map(function(c){ return c.textContent.trim(); });
+  console.log('[PC Hub] HTML parse: headers:', headers);
+  // Detect Job Aging by the signature columns
+  if(headers.indexOf('Pending Sales') >= 0 && headers.indexOf('Invoice Pending') >= 0){
+    parseAging(trs, headers, fname);
+  } else {
+    showToast('❌ Unrecognized HTML report: '+fname+' — expected Job Aging Report (got '+headers.length+' columns: '+headers.slice(0,4).join(', ')+'…)', 'error');
+  }
+}
+
+function detectReportType(headers, fname){
+  var hs = headers.map(function(h){ return String(h).toLowerCase(); }).join('|');
+  var f = fname.toLowerCase();
+  // AR Report: has Balance Owing + Job Status + Coordinator + Date Invoiced
+  if(hs.indexOf('balance owing') >= 0 && hs.indexOf('coordinator') >= 0) return 'ar';
+  // Payment Report: has Payment Amount + Payment Date
+  if(hs.indexOf('payment amount') >= 0 || hs.indexOf('payment date') >= 0) return 'payments';
+  // Working GP: has Working Gross Profit + Foreperson
+  if(hs.indexOf('working gross profit') >= 0) return 'wgp';
+  // IMSR (Invoice Monthly Sales Report): has Insurance Company + Division + Estimator + Invoiced Subtotal
+  if(hs.indexOf('invoiced subtotal') >= 0) return 'imsr';
+  // Fall back on filename
+  if(f.indexOf('invoicemonthly') >= 0) return 'imsr';
+  if(f.indexOf('paymentmonthly') >= 0) return 'payments';
+  if(f.indexOf('accounts_receivable') >= 0 || f.indexOf('accountsreceivable') >= 0) return 'ar';
+  if(f.indexOf('working_gp') >= 0 || f.indexOf('workinggp') >= 0) return 'wgp';
+  return null;
+}
+
+// ── PARSERS ──
+function parseAR(rows, headers, fname){
+  var jnI = headers.indexOf('Job Number');
+  var diI = headers.indexOf('Date Invoiced');
+  var jnmI = headers.indexOf('Job Name');
+  var tiI = headers.indexOf('Total Invoiced');
+  var tcI = headers.indexOf('Total Collected');
+  var boI = headers.indexOf('Balance Owing');
+  var jsI = headers.indexOf('Job Status');
+  var coI = headers.indexOf('Coordinator');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var items = [];
+  for(var i=1; i<rows.length; i++){
+    var row = rows[i]; if(!row || !row[jnI]) continue;
+    var bal = parseFloat(row[boI]); if(isNaN(bal)) continue;
+    var inv = parseFloat(row[tiI])||0;
+    var col = parseFloat(row[tcI])||0;
+    var dateObj = excelDateToJS(row[diI]);
+    var daysAged = dateObj ? daysBetween(dateObj, today) : null;
+    items.push({
+      job: String(row[jnI]||'').trim(),
+      name: String(row[jnmI]||'').trim(),
+      inv: Math.round(inv*100)/100,
+      collected: Math.round(col*100)/100,
+      bal: Math.round(bal*100)/100,
+      status: String(row[jsI]||'').trim(),
+      coordinator: String(row[coI]||'').trim(),
+      dateObj: dateObj,
+      daysAged: daysAged
+    });
+  }
+  DATA.ar = items;
+  LOADED.ar = true;
+  updateReportPill('ar', fname, items.length);
+  showToast('✓ AR Report: '+items.length+' rows', 'success');
+  renderDashboard();
+}
+
+function parsePayments(rows, headers, fname){
+  var dI = headers.indexOf('Division');
+  var eI = headers.indexOf('Estimator');
+  var jnI = headers.indexOf('Job Number');
+  var aI = headers.indexOf('Payment Amount');
+  var dtI = headers.indexOf('Payment Date');
+  var coI = headers.indexOf('Coordinator');
+  var items = [];
+  for(var i=1; i<rows.length; i++){
+    var row = rows[i]; if(!row) continue;
+    var amt = parseFloat(row[aI]); if(isNaN(amt) || amt<=0) continue;
+    var dateObj = excelDateToJS(row[dtI]);
+    items.push({
+      job: String(row[jnI]||'').trim(),
+      div: String(row[dI]||'').trim(),
+      est: String(row[eI]||'').trim().replace(/\s+/g,' '),
+      amt: Math.round(amt*100)/100,
+      coordinator: String(row[coI]||'').trim(),
+      dateObj: dateObj
+    });
+  }
+  DATA.payments = items;
+  LOADED.payments = true;
+  updateReportPill('payments', fname, items.length);
+  showToast('✓ Payments: '+items.length+' rows', 'success');
+  renderDashboard();
+}
+
+function parseIMSR(rows, headers, fname){
+  // Uses positional indexing like Command Center because some columns are "Unnamed"
+  // Headers seen: Insurance Company(0), Division(1), Estimator(2), [Unnamed], (4)Job#, (5)Date, ...
+  var dI = headers.indexOf('Division');
+  var eI = headers.indexOf('Estimator');
+  var cI = headers.indexOf('Loss Category');
+  // Job Number is typically in the Unnamed: 4 position (column index 4)
+  // Date is column 5, Amount in 'Invoiced Subtotal'
+  var amtI = headers.indexOf('Invoiced Subtotal');
+  if(amtI < 0) amtI = 16; // fallback to known position
+  var coI = headers.indexOf('Coordinator');
+  var items = [];
+  for(var i=1; i<rows.length; i++){
+    var row = rows[i]; if(!row) continue;
+    var amt = parseFloat(row[amtI]); if(isNaN(amt) || amt===0) continue;
+    if(!row[dI]) continue;
+    var ds = '';
+    var dateObj = null;
+    var rawDate = row[5];
+    if(rawDate){
+      if(rawDate instanceof Date){ dateObj = rawDate; }
+      else {
+        var n = parseFloat(rawDate);
+        if(!isNaN(n) && n>40000){ dateObj = new Date((n-25569)*86400*1000); }
+        else { var d = new Date(String(rawDate)); if(!isNaN(d)) dateObj = d; }
+      }
+    }
+    items.push({
+      job: String(row[4]||'').trim(),
+      div: String(row[dI]||'').trim(),
+      est: String(row[eI]||'').trim().replace(/\s+/g,' '),
+      cat: String(row[cI]||'').trim(),
+      amt: Math.round(amt*100)/100,
+      dateObj: dateObj,
+      coordinator: String(row[coI]||'').trim()
+    });
+  }
+  DATA.imsr = items;
+  LOADED.imsr = true;
+  updateReportPill('imsr', fname, items.length);
+  showToast('✓ IMSR: '+items.length+' invoices', 'success');
+  renderDashboard();
+}
+
+function parseWGP(rows, headers, fname){
+  var jnI = headers.indexOf('Job Number');
+  var jnmI = headers.indexOf('Job Name');
+  var dI = headers.indexOf('Division');
+  var fI = headers.indexOf('Foreperson');
+  var coI = headers.indexOf('Coordinator');
+  var teI = headers.indexOf('Total Estimates');
+  var tcI = headers.indexOf('Total Job Cost');
+  var gpI = headers.indexOf('Working Gross Profit(%)');
+  var jsI = headers.indexOf('Job Status');
+  var dsI = headers.indexOf('Date Started');
+  var today = new Date();
+  var items = [];
+  for(var i=1; i<rows.length; i++){
+    var row = rows[i]; if(!row || !row[jnI]) continue;
+    var est = parseFloat(row[teI]) || 0;
+    var cost = parseFloat(row[tcI]) || 0;
+    var rawDiv = String(row[dI]||'').trim();
+    var ceiling = ceilingForSubdiv(rawDiv);
+    var costPct = est > 0 ? cost/est : null;
+    var tier = budgetTier(costPct, ceiling);
+    // Age in WIP: days since Date Started. Pending Sales jobs have no
+    // Date Started yet, so daysInWip is null for those (handled in render).
+    // Future-dated Date Started (data entry quirk) is clamped to 0.
+    var dateStarted = (dsI >= 0) ? excelDateToJS(row[dsI]) : null;
+    var daysInWip = dateStarted ? Math.max(0, daysBetween(dateStarted, today)) : null;
+    items.push({
+      job: String(row[jnI]||'').trim(),
+      name: String(row[jnmI]||'').trim(),
+      rawDiv: rawDiv,
+      foreman: String(row[fI]||'').trim().replace(/\s+/g,' '),
+      coordinator: String(row[coI]||'').trim(),
+      est: est,
+      cost: cost,
+      gpPct: parseFloat(row[gpI]) || 0,
+      status: String(row[jsI]||'').trim(),
+      ceiling: ceiling,
+      costPct: costPct,
+      ceilingDollars: (ceiling!==null && est>0) ? est*ceiling : null,
+      varianceDollars: (ceiling!==null && est>0) ? (est*ceiling - cost) : null,
+      tier: tier,
+      daysInWip: daysInWip
+    });
+  }
+  DATA.wgp = items;
+  LOADED.wgp = true;
+  updateReportPill('wgp', fname, items.length);
+  showToast('✓ Working GP: '+items.length+' jobs', 'success');
+  renderDashboard();
+}
+
+function budgetTier(costPct, ceilingPct){
+  if(ceilingPct==null) return 'na';
+  if(costPct==null || !isFinite(costPct)) return 'na';
+  if(costPct > ceilingPct) return 'over';
+  if(costPct >= ceilingPct * 0.90) return 'warning';
+  return 'on';
+}
+
+function parseAging(trs, headers, fname){
+  // The 7 active-status columns in workflow order (Pending Sales → Closed).
+  var statusCols = ['Pending Sales','Pre Production','Work in Progress','Completed Without Paperwork','Invoice Pending','Accounts Receivable','Waiting Final Closure'];
+  var statusIdx = {};
+  statusCols.forEach(function(s){
+    var i = headers.indexOf(s);
+    if(i >= 0) statusIdx[s] = i;
+  });
+  var closedIdx = headers.indexOf('Closed');
+  var items = [];
+  var skippedClosed = 0;
+  var skippedArEnded = 0;
+  for(var i=1; i<trs.length; i++){
+    var cells = Array.from(trs[i].querySelectorAll('th,td')).map(function(c){ return c.textContent.trim(); });
+    if(cells.length < 11) continue;
+    var jobRaw = cells[0];
+    if(!jobRaw) continue;
+    var commaIdx = jobRaw.indexOf(',');
+    var jobnum = (commaIdx >= 0 ? jobRaw.substring(0, commaIdx) : jobRaw).trim();
+    var jobName = commaIdx >= 0 ? jobRaw.substring(commaIdx+1).trim() : '';
+    if(!jobnum) continue;
+
+    // EXCLUSION 1: Closed column has any value → job is closed.
+    if(closedIdx >= 0 && cells[closedIdx] && cells[closedIdx].trim() && cells[closedIdx] !== '\xa0'){
+      skippedClosed++;
+      continue;
+    }
+
+    // EXCLUSION 2: AR or Waiting-Final-Closure has a value that does NOT contain "to Present".
+    // Meaning the job moved into AR (or WFC), then exited it. That's effectively closed —
+    // even if the Closed column hasn't caught up yet. Matches DASH's filtering.
+    var arVal = cells[statusIdx['Accounts Receivable']];
+    var wfcVal = cells[statusIdx['Waiting Final Closure']];
+    var arEnded = arVal && arVal.trim() && arVal !== '\xa0' && arVal.indexOf('to Present') === -1;
+    var wfcEnded = wfcVal && wfcVal.trim() && wfcVal !== '\xa0' && wfcVal.indexOf('to Present') === -1;
+    if(arEnded || wfcEnded){
+      skippedArEnded++;
+      continue;
+    }
+
+    // Find current status: scan in REVERSE workflow order. Active jobs often have
+    // multiple "to Present" entries because earlier statuses don't get end-dated when
+    // a job advances. The status furthest in the workflow is the real current one.
+    var currentStatus = null;
+    var daysInStatus = null;
+    for(var k=statusCols.length-1; k>=0; k--){
+      var s = statusCols[k];
+      var idxK = statusIdx[s]; if(idxK==null) continue;
+      var v = cells[idxK];
+      if(v && v.indexOf('to Present') !== -1){
+        currentStatus = s;
+        var m = v.match(/^(-?\d+)\s*Days?/);
+        if(m) daysInStatus = parseInt(m[1], 10);
+        break;
+      }
+    }
+    if(!currentStatus) continue;
+    items.push({
+      job: jobnum,
+      name: jobName,
+      currentStatus: currentStatus,
+      daysInStatus: daysInStatus
+    });
+  }
+  DATA.aging = items;
+  LOADED.aging = true;
+  updateReportPill('aging', fname, items.length);
+  console.log('[PC Hub] Job Aging parsed:', items.length, 'open jobs · skipped', skippedClosed, 'closed +', skippedArEnded, 'AR-ended');
+  showToast('✓ Job Aging: '+items.length+' open jobs ('+(skippedClosed+skippedArEnded)+' closed-out jobs excluded)', 'success');
+  renderDashboard();
+}
+
+function updateReportPill(key, fname, count){
+  var pill = document.querySelector('.report-pill[data-key="'+key+'"]');
+  if(!pill) return;
+  pill.classList.add('loaded');
+  pill.querySelector('.report-pill-status').textContent = count + ' rows · ' + fname;
+}
+
+// ── DROP HANDLERS ──
+var dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('drag-over'); });
+dz.addEventListener('drop', function(e){
+  e.preventDefault(); dz.classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+});
+
+// ── DIVISION SELECTOR ──
+function setDiv(btn){
+  currentDiv = btn.dataset.div;
+  document.querySelectorAll('.div-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  var homeView = document.getElementById('homeView');
+  if(currentDiv === 'HOME'){
+    if(homeView) homeView.style.display = '';
+    document.getElementById('noData').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('hdrSub').textContent = 'Home';
+    renderHome();
+    return;
+  }
+  if(homeView) homeView.style.display = 'none';
+  renderDashboard();
+}
+
+// ── HOME VIEW ──
+function renderHome(){
+  // Live date (no clock — intentionally static-feeling, glance-only)
+  var d = new Date();
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var mons = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var hr = d.getHours();
+  var greet = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  var gEl = document.getElementById('hGreeting');
+  if(gEl) gEl.innerHTML = greet + '<span class="accent">.</span>';
+  var dEl = document.getElementById('hDate');
+  if(dEl) dEl.textContent = days[d.getDay()] + ', ' + mons[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+
+  // 2026 Company Collection Rate — mirrors Scoreboard formula exactly:
+  // total payments received / total invoiced * 100, scoped to 2026.
+  var valEl = document.getElementById('hcrValue');
+  var noteEl = document.getElementById('hcrNote');
+  if(!valEl) return;
+
+  function is2026(dt){ return dt instanceof Date && !isNaN(dt) && dt.getFullYear() === 2026; }
+
+  // Mirror the Scoreboard EXACTLY:
+  //   invoiced  = sum of IMSR 'Invoiced Subtotal' (net — credits included, like the Scoreboard)
+  //   collected = sum of Payment Report amounts
+  //   rate      = collected / invoiced * 100
+  // (Earlier this incorrectly used the AR Report's Total Invoiced, which only
+  //  covers jobs still in Accounts Receivable status and excludes collected/closed
+  //  work — producing a skewed denominator. IMSR is the full invoice book.)
+  var totalPay = 0;
+  (DATA.payments||[]).forEach(function(p){
+    if(p && typeof p.amt === 'number' && is2026(p.dateObj)){ totalPay += p.amt; }
+  });
+  var totalInv = 0;
+  (DATA.imsr||[]).forEach(function(j){
+    if(j && typeof j.amt === 'number' && is2026(j.dateObj)){ totalInv += j.amt; }
+  });
+
+  if(LOADED.imsr && LOADED.payments && totalInv > 0){
+    var pct = totalPay / totalInv * 100;
+    valEl.textContent = Math.round(pct) + '%';
+    // Mirror the Scoreboard collection-rate bands EXACTLY:
+    //   >=90 -> green  "Strong"
+    //   >=75 -> yellow "Keep Watch"
+    //   < 75 -> red    "Needs Attention"
+    var crColor, crStatus;
+    if(pct >= 90){ crColor = '#4ade80'; crStatus = 'Strong'; }
+    else if(pct >= 75){ crColor = '#facc15'; crStatus = 'Keep Watch'; }
+    else { crColor = '#f87171'; crStatus = 'Needs Attention'; }
+    valEl.style.color = crColor;
+    if(noteEl){
+      noteEl.textContent = crStatus + ' · $' + Math.round(totalPay).toLocaleString() +
+        ' collected of $' + Math.round(totalInv).toLocaleString() + ' net invoiced · 2026 YTD';
+    }
+  } else {
+    // First-ever load only: quiet neutral state, never a scold.
+    valEl.textContent = '—';
+    valEl.style.color = '#444';
+    if(noteEl) noteEl.textContent = 'Updates automatically once IMSR & Payment reports are loaded';
+  }
+}
+
+// ── RENDER DASHBOARD ──
+function renderDashboard(){
+  if(currentDiv === 'HOME'){
+    document.getElementById('noData').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'none';
+    renderHome();
+    return;
+  }
+  var anyLoaded = Object.values(LOADED).some(function(v){ return v; });
+  document.getElementById('noData').style.display = anyLoaded ? 'none' : '';
+  document.getElementById('dashboard').style.display = anyLoaded ? '' : 'none';
+  if(!anyLoaded) return;
+
+  // Header subtitle — special-case ALL and MARIA so the wording reads naturally
+  document.getElementById('hdrSub').textContent = currentDivLabel(true);
+
+  renderTriage();
+  renderAgingBars();
+  renderCollections();
+  renderIncentiveTracker();
+  renderTotalResponsibility();
+  renderWorkInMotion();
+  renderWIP();
+  renderPendingSales();
+  renderCWP();
+  renderPipeline();
+}
+
+// Filter helpers — every panel uses divisionFromJobNumber() to scope
+// Maria's portfolio: ELE + CST + INSP + MEDWTR + MEDSTR + MED (operational override for PC Hub only).
+// In code-level division mapping, CST and INSP roll up to STRUCTURE and MED* to MEDICAL —
+// this set is purely for the Maria tab's filter so she sees her actual desk.
+const MARIA_CODES = {'ELE':1,'CST':1,'INSP':1,'MEDWTR':1,'MEDSTR':1,'MED':1};
+
+// Friendly label for the current view — used in headers and drilldowns
+function currentDivLabel(longForm){
+  if(currentDiv === 'ALL') return longForm ? 'All Divisions' : 'All divisions';
+  if(currentDiv === 'MARIA') return longForm ? 'Maria — ELE / CST / INSP / MEDWTR / MEDSTR' : 'Maria';
+  var pretty = currentDiv.charAt(0) + currentDiv.slice(1).toLowerCase();
+  return longForm ? pretty + ' Division' : pretty;
+}
+
+function inDiv(jobnum){
+  if(currentDiv === 'ALL'){
+    // For sanity-check tab: include any job that maps to one of the real divisions
+    // (excludes __EXCLUDED__ and __UNKNOWN__ so the totals match a clean PC view)
+    var d = divisionFromJobNumber(jobnum);
+    return d && d !== '__EXCLUDED__' && d !== '__UNKNOWN__';
+  }
+  if(currentDiv === 'MARIA'){
+    // Maria's tab spans her actual job streams regardless of parent-division bucket
+    var code = extractJobCode(jobnum);
+    return code && MARIA_CODES[code] === 1;
+  }
+  if(currentDiv === 'STRUCTURE'){
+    // CST and INSP jobs are Maria's responsibility (operational override) — exclude from
+    // Structure tab even though the global CODE_TO_DIV still buckets them under STRUCTURE
+    // for Command Center.
+    var c = extractJobCode(jobnum);
+    if(c === 'CST' || c === 'INSP') return false;
+    return divisionFromJobNumber(jobnum) === 'STRUCTURE';
+  }
+  return divisionFromJobNumber(jobnum) === currentDiv;
+}
+
+// ── TRIAGE STRIP ──
+function renderTriage(){
+  // 4 cards: AR >60 · Invoice Pending >1 day · Jobs Over Budget · Completed-No-Paperwork
+  var arOver60 = DATA.ar.filter(function(r){
+    return r.status === 'Accounts Receivable' && r.bal > 0 && r.daysAged != null && r.daysAged > 60 && inDiv(r.job);
+  });
+  var invoicePending = DATA.aging.filter(function(r){
+    return r.currentStatus === 'Invoice Pending' && inDiv(r.job);
+  });
+  var invoicePendingOverdue = invoicePending.filter(function(r){ return r.daysInStatus != null && r.daysInStatus > 1; });
+  var overBudget = DATA.wgp.filter(function(r){
+    return r.tier === 'over' && inDiv(r.job);
+  });
+  var cwp = DATA.aging.filter(function(r){
+    return r.currentStatus === 'Completed Without Paperwork' && inDiv(r.job);
+  });
+
+  var cards = [
+    {
+      icon:'🕐',
+      num: arOver60.length,
+      lbl: 'AR 60+ Days',
+      sub: arOver60.length ? fmt$(arOver60.reduce(function(s,r){return s+r.bal;},0)) + ' owed' : 'None overdue',
+      color: arOver60.length > 5 ? 'red' : arOver60.length > 0 ? 'yellow' : 'green',
+      onclick: "drillTriage('ar60')"
+    },
+    {
+      icon:'📨',
+      num: invoicePending.length,
+      lbl: 'Invoice Pending',
+      sub: invoicePendingOverdue.length ? invoicePendingOverdue.length + ' over 1 day' : (invoicePending.length ? 'All within 1 day' : 'Clean'),
+      color: invoicePendingOverdue.length ? 'red' : invoicePending.length ? 'yellow' : 'green',
+      onclick: "drillTriage('ip')"
+    },
+    {
+      icon:'🚨',
+      num: overBudget.length,
+      lbl: 'Jobs Over Budget',
+      sub: overBudget.length ? fmt$(overBudget.reduce(function(s,r){return s+Math.abs(r.varianceDollars||0);},0)) + ' over' : 'All under',
+      color: overBudget.length > 0 ? 'red' : 'green',
+      onclick: "drillTriage('over')"
+    },
+    {
+      icon:'📄',
+      num: cwp.length,
+      lbl: 'No Paperwork',
+      sub: cwp.length ? cwp.filter(function(r){return r.daysInStatus>30;}).length + ' over 30 days' : 'None',
+      color: cwp.filter(function(r){return r.daysInStatus>30;}).length > 0 ? 'yellow' : cwp.length ? 'orange' : 'green',
+      onclick: "drillTriage('cwp')"
+    }
+  ];
+
+  document.getElementById('triageStrip').innerHTML = cards.map(function(c){
+    return '<div class="triage-card '+c.color+'" onclick="'+c.onclick+'">'+
+      '<div class="triage-drill-hint">TAP →</div>'+
+      '<div class="triage-icon">'+c.icon+'</div>'+
+      '<div class="triage-num '+c.color+'">'+c.num+'</div>'+
+      '<div class="triage-lbl">'+c.lbl+'</div>'+
+      '<div class="triage-sub">'+c.sub+'</div>'+
+      '</div>';
+  }).join('');
+
+  document.getElementById('triageMeta').textContent = currentDivLabel(true) + ' · ' + new Date().toLocaleDateString();
+}
+
+// ── AR AGING BARS (proportional, like Command Center) ──
+// Header mirrors Work in Motion exactly: panel-title left, "Total AR" headline right.
+// The two panels sit side-by-side in a two-col row; symmetric headers keep them aligned.
+function renderAgingBars(){
+  var el = document.getElementById('agingBars');
+  if(!LOADED.ar){
+    el.innerHTML = '<div class="panel-title">AR Aging</div>'+
+      '<div class="panel-empty">Load AR Report to see aging</div>';
+    return;
+  }
+  var ar = DATA.ar.filter(function(r){
+    return r.status === 'Accounts Receivable' && r.bal > 0 && inDiv(r.job);
+  });
+  if(!ar.length){
+    el.innerHTML = '<div class="wim-header">'+
+      '<div class="wim-left"><div class="panel-title">AR Aging</div></div>'+
+      '<div class="wim-right">'+
+      '<div class="wim-headline-lbl">Total AR</div>'+
+      '<div class="wim-headline-val" style="color:#4ade80">$0</div>'+
+      '<div class="wim-headline-sub">Nothing collectible right now</div>'+
+      '</div></div>'+
+      '<div class="panel-empty" style="color:#4ade80">✓ No open AR for this division</div>';
+    return;
+  }
+  var buckets = [
+    {key:'current', lbl:'Current', max:30, color:C.great, jobs:[], total:0},
+    {key:'30-60',   lbl:'30-60',   max:60, color:'#a3e635', jobs:[], total:0},
+    {key:'60-90',   lbl:'60-90',   max:90, color:C.watch, jobs:[], total:0},
+    {key:'90-120',  lbl:'90-120',  max:120,color:C.ok, jobs:[], total:0},
+    {key:'120+',    lbl:'120+',    max:Infinity,color:C.alert, jobs:[], total:0}
+  ];
+  ar.forEach(function(r){
+    var d = r.daysAged == null ? 0 : r.daysAged;
+    for(var i=0;i<buckets.length;i++){
+      if(d < buckets[i].max){ buckets[i].jobs.push(r); buckets[i].total += r.bal; break; }
+    }
+  });
+  var grandTotal = buckets.reduce(function(s,b){ return s+b.total; }, 0);
+
+  var html = '<div class="wim-header">'+
+    '<div class="wim-left"><div class="panel-title">AR Aging</div></div>'+
+    '<div class="wim-right">'+
+    '<div class="wim-headline-lbl">Total AR</div>'+
+    '<div class="wim-headline-val" style="color:#4ade80">'+fmt$(grandTotal)+'</div>'+
+    '<div class="wim-headline-sub">'+ar.length+' job'+(ar.length!==1?'s':'')+' · collectible today</div>'+
+    '</div></div>';
+
+  html += '<div class="aging-bars">';
+  buckets.forEach(function(b){
+    var pct = grandTotal > 0 ? (b.total / grandTotal * 100) : 0;
+    html += '<div class="aging-bar-row" onclick="drillAging(\''+b.key+'\')" style="cursor:pointer;">'+
+      '<div class="aging-bar-lbl">'+b.lbl+'</div>'+
+      '<div class="aging-bar-track"><div class="aging-bar-fill" style="width:'+Math.max(pct,2)+'%;background:'+b.color+'">'+
+      (pct >= 8 ? b.jobs.length + ' jobs' : '') +
+      '</div></div>'+
+      '<div><div class="aging-bar-amt">'+fmt$(b.total)+'</div><div class="aging-bar-count">'+b.jobs.length+' job'+(b.jobs.length!==1?'s':'')+'</div></div>'+
+      '</div>';
+  });
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+// ── COLLECTIONS THIS PERIOD ──
+// Zone classification per Coordinator Collection Performance Incentive Program
+// (approved by VP + Board). Method B + 90-day rolling smoothening: rate = (payments
+// received in the trailing 90 days) ÷ (invoices issued in the trailing 90 days),
+// scoped to current division via inDiv() — which implicitly attributes to that
+// division's PC. The 90-day window absorbs the lumpiness of carrier payment timing
+// so the rate doesn't swing wildly across a single month based on invoicing cadence.
+function getCollectionZone(pct){
+  if(pct == null || !isFinite(pct)) return null;
+  if(pct < 75)    return {key:'red',    cls:'z-red',    icon:'🔴',  name:'Red Zone · Below 75%',     reward:'Significant leakage — AR, invoicing, and collection processes will be reviewed.'};
+  if(pct < 90)    return {key:'yellow', cls:'z-yellow', icon:'🟡',  name:'Yellow Zone · 75–89.99%',   reward:'Needs attention — focus on collections, documentation, and invoice turnaround.'};
+  if(pct < 95)    return {key:'green',  cls:'z-green',  icon:'🟢',  name:'Green Zone · 90–94.99%',    reward:'Healthy performance — continue monitoring trends.'};
+  if(pct < 97)    return {key:'bonus1', cls:'z-bonus1', icon:'💵',  name:'$250 Bonus Zone · 95–96.99%', reward:'Eligible for $250 Collection Excellence Bonus.'};
+  if(pct < 100)   return {key:'bonus2', cls:'z-bonus2', icon:'💵💵', name:'$500 Bonus Zone · 97–99.99%', reward:'Eligible for $500 Collection Excellence Bonus.'};
+  if(pct <= 105)  return {key:'wfh',    cls:'z-wfh',    icon:'🏠',  name:'WFH Zone · 100–105%',       reward:'Eligible for 1 Work From Home day per week next month.'};
+  return {key:'review', cls:'z-review', icon:'⭐', name:'Exceptional Zone · Above 105%', reward:'Exceptional rate detected — manager will review the data before confirming, since rates this high can sometimes reflect timing differences in invoicing or carrier payments rather than collection performance.'};
+}
+
+function zoneRateColor(key){
+  if(key === 'red')    return 'red';
+  if(key === 'yellow') return 'yellow';
+  if(key === 'green')  return 'green';
+  if(key === 'bonus1' || key === 'bonus2') return 'blue';
+  if(key === 'wfh')    return 'purple';
+  if(key === 'review') return 'gold';
+  return 'orange';
+}
+
+// Compute (rate, paid, inv) over an arbitrary date window within the current division.
+function divWindowRate(startDate, endDate){
+  if(!LOADED.imsr) return null;
+  var pays = (DATA.payments||[]).filter(function(p){
+    return p.dateObj && inDiv(p.job) && p.dateObj >= startDate && p.dateObj <= endDate;
+  });
+  var invs = (DATA.imsr||[]).filter(function(r){
+    return r.dateObj && inDiv(r.job) && r.dateObj >= startDate && r.dateObj <= endDate;
+  });
+  var paid = pays.reduce(function(s,p){ return s+p.amt; }, 0);
+  var inv  = invs.reduce(function(s,r){ return s+r.amt; }, 0);
+  if(inv <= 0) return null;
+  return { rate: (paid/inv)*100, paid: paid, inv: inv, payCount: pays.length, invCount: invs.length };
+}
+
+// Trailing 90 days ending today.
+function trailing90Window(){
+  var end = new Date();
+  var start = new Date(end.getTime() - 90*24*60*60*1000);
+  return { start: start, end: end };
+}
+
+// Drill-down: show the 90-day window's invoices and payments behind the live rate.
+function drillCollectionRate(){
+  if(!LOADED.imsr || !LOADED.payments) return;
+  var win = trailing90Window();
+  var winLabel = win.start.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' → ' + win.end.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  var invs = (DATA.imsr||[]).filter(function(r){
+    return r.dateObj && inDiv(r.job) && r.dateObj >= win.start && r.dateObj <= win.end;
+  }).sort(function(a,b){ return b.dateObj - a.dateObj; });
+  var pays = (DATA.payments||[]).filter(function(p){
+    return p.dateObj && inDiv(p.job) && p.dateObj >= win.start && p.dateObj <= win.end;
+  }).sort(function(a,b){ return b.dateObj - a.dateObj; });
+
+  var totalInv = invs.reduce(function(s,r){ return s+r.amt; }, 0);
+  var totalPay = pays.reduce(function(s,p){ return s+p.amt; }, 0);
+  var rate = totalInv > 0 ? (totalPay/totalInv)*100 : 0;
+  var zone = getCollectionZone(rate);
+  var rateColor = zone ? zoneRateColor(zone.key) : 'orange';
+
+  function fmtDate(d){
+    if(!d) return '—';
+    return (d.getMonth()+1)+'/'+d.getDate();
+  }
+  function rowHtml(items, srcLabel){
+    if(!items.length){
+      return '<div style="padding:24px;text-align:center;color:#666;font-size:12px;">No '+srcLabel+' in the trailing 90 days.</div>';
+    }
+    var h = '<div style="max-height:420px;overflow-y:auto;"><table class="job-list-table"><thead><tr>'+
+      '<th>Date</th><th>Job #</th><th>Job Name</th><th style="text-align:right">Amount</th>'+
+      '</tr></thead><tbody>';
+    items.forEach(function(r){
+      h += '<tr>'+
+        '<td style="font-size:11px;color:#888;white-space:nowrap;">'+fmtDate(r.dateObj)+'</td>'+
+        '<td><span class="jl-jobnum">'+(r.job||'—')+'</span></td>'+
+        '<td><span class="jl-name">'+(r.name||r.job||'—')+'</span></td>'+
+        '<td style="text-align:right" class="jl-amt"><span style="color:#ff6a00">'+fmt$(r.amt)+'</span></td>'+
+        '</tr>';
+    });
+    return h + '</tbody></table></div>';
+  }
+
+  var summaryHtml =
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:16px 18px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:18px;">'+
+      '<div>'+
+        '<div class="coll-lbl">Total Invoiced (90d)</div>'+
+        '<div class="coll-val orange">'+fmt$(totalInv)+'</div>'+
+        '<div class="coll-note">'+invs.length+' invoice'+(invs.length!==1?'s':'')+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="coll-lbl">Total Collected (90d)</div>'+
+        '<div class="coll-val green">'+fmt$(totalPay)+'</div>'+
+        '<div class="coll-note">'+pays.length+' payment'+(pays.length!==1?'s':'')+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="coll-lbl">Collection Rate</div>'+
+        '<div class="coll-val '+rateColor+'">'+(totalInv>0?rate.toFixed(1)+'%':'—')+'</div>'+
+        '<div class="coll-note">'+fmt$(totalPay)+' ÷ '+fmt$(totalInv)+'</div>'+
+      '</div>'+
+    '</div>';
+
+  var body = summaryHtml +
+    '<div class="drill-cols" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">'+
+      '<div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px;">'+
+          '<div style="font-size:11px;font-weight:700;color:#ff6a00;text-transform:uppercase;letter-spacing:1.2px;">📤 Invoiced (Last 90 Days) <span style="color:#666;font-weight:400;">(IMSR)</span></div>'+
+          '<div style="font-size:13px;font-weight:700;color:#ff6a00;white-space:nowrap;">'+fmt$(totalInv)+'</div>'+
+        '</div>'+
+        rowHtml(invs, 'invoices')+
+      '</div>'+
+      '<div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px;">'+
+          '<div style="font-size:11px;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:1.2px;">📥 Collected (Last 90 Days) <span style="color:#666;font-weight:400;">(Payment Report)</span></div>'+
+          '<div style="font-size:13px;font-weight:700;color:#4ade80;white-space:nowrap;">'+fmt$(totalPay)+'</div>'+
+        '</div>'+
+        rowHtml(pays, 'payments')+
+      '</div>'+
+    '</div>'+
+    '<div style="margin-top:14px;font-size:10px;color:#555;line-height:1.5;">'+
+      'Rate = (Payments received in the trailing 90 days) ÷ (Invoices issued in the trailing 90 days), scoped to this division. '+
+      'The 90-day window smooths timing differences between when invoices go out and when carriers pay. '+
+      'Source reports: IMSR + Payment Report.'+
+    '</div>';
+
+  openModal('Collection Rate — Trailing 90 Days', currentDivLabel(true)+' · '+winLabel, body);
+}
+
+// Drill-down for the MTD (calendar-month) rate shown in Collections This Period.
+// Same modal style as drillCollectionRate, but the window is the current calendar month
+// and the header/labels explicitly say "MTD" so PCs don't confuse it with the incentive
+// 90-day rolling drill-down.
+function drillMTDRate(){
+  if(!LOADED.imsr || !LOADED.payments) return;
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var monthName = monthStart.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+  var winLabel = monthStart.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' → ' + now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  var invs = (DATA.imsr||[]).filter(function(r){
+    return r.dateObj && inDiv(r.job) && r.dateObj >= monthStart && r.dateObj <= now;
+  }).sort(function(a,b){ return b.dateObj - a.dateObj; });
+  var pays = (DATA.payments||[]).filter(function(p){
+    return p.dateObj && inDiv(p.job) && p.dateObj >= monthStart && p.dateObj <= now;
+  }).sort(function(a,b){ return b.dateObj - a.dateObj; });
+
+  var totalInv = invs.reduce(function(s,r){ return s+r.amt; }, 0);
+  var totalPay = pays.reduce(function(s,p){ return s+p.amt; }, 0);
+  var rate = totalInv > 0 ? (totalPay/totalInv)*100 : 0;
+
+  function fmtDate(d){
+    if(!d) return '—';
+    return (d.getMonth()+1)+'/'+d.getDate();
+  }
+  function rowHtml(items, srcLabel){
+    if(!items.length){
+      return '<div style="padding:24px;text-align:center;color:#666;font-size:12px;">No '+srcLabel+' this month.</div>';
+    }
+    var h = '<div style="max-height:420px;overflow-y:auto;"><table class="job-list-table"><thead><tr>'+
+      '<th>Date</th><th>Job #</th><th>Job Name</th><th style="text-align:right">Amount</th>'+
+      '</tr></thead><tbody>';
+    items.forEach(function(r){
+      h += '<tr>'+
+        '<td style="font-size:11px;color:#888;white-space:nowrap;">'+fmtDate(r.dateObj)+'</td>'+
+        '<td><span class="jl-jobnum">'+(r.job||'—')+'</span></td>'+
+        '<td><span class="jl-name">'+(r.name||r.job||'—')+'</span></td>'+
+        '<td style="text-align:right" class="jl-amt"><span style="color:#ff6a00">'+fmt$(r.amt)+'</span></td>'+
+        '</tr>';
+    });
+    return h + '</tbody></table></div>';
+  }
+
+  // Summary KPIs — neutral orange (no zone color) since this is operational, not incentive.
+  var summaryHtml =
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:16px 18px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:18px;">'+
+      '<div>'+
+        '<div class="coll-lbl">Total Invoiced (MTD)</div>'+
+        '<div class="coll-val orange">'+fmt$(totalInv)+'</div>'+
+        '<div class="coll-note">'+invs.length+' invoice'+(invs.length!==1?'s':'')+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="coll-lbl">Total Collected (MTD)</div>'+
+        '<div class="coll-val green">'+fmt$(totalPay)+'</div>'+
+        '<div class="coll-note">'+pays.length+' payment'+(pays.length!==1?'s':'')+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="coll-lbl">'+monthStart.toLocaleDateString('en-US',{month:'long'})+' Collection Rate (MTD)</div>'+
+        '<div class="coll-val orange">'+(totalInv>0?rate.toFixed(1)+'%':'—')+'</div>'+
+        '<div class="coll-note">'+fmt$(totalPay)+' ÷ '+fmt$(totalInv)+'</div>'+
+      '</div>'+
+    '</div>';
+
+  var body = summaryHtml +
+    '<div class="drill-cols" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">'+
+      '<div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px;">'+
+          '<div style="font-size:11px;font-weight:700;color:#ff6a00;text-transform:uppercase;letter-spacing:1.2px;">📤 Invoiced This Month <span style="color:#666;font-weight:400;">(IMSR)</span></div>'+
+          '<div style="font-size:13px;font-weight:700;color:#ff6a00;white-space:nowrap;">'+fmt$(totalInv)+'</div>'+
+        '</div>'+
+        rowHtml(invs, 'invoices')+
+      '</div>'+
+      '<div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px;">'+
+          '<div style="font-size:11px;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:1.2px;">📥 Collected This Month <span style="color:#666;font-weight:400;">(Payment Report)</span></div>'+
+          '<div style="font-size:13px;font-weight:700;color:#4ade80;white-space:nowrap;">'+fmt$(totalPay)+'</div>'+
+        '</div>'+
+        rowHtml(pays, 'payments')+
+      '</div>'+
+    '</div>'+
+    '<div style="margin-top:14px;padding:10px 12px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);border-radius:8px;font-size:10px;color:#93c5fd;line-height:1.5;">'+
+      '<strong style="color:#60a5fa;">ℹ️ Note:</strong> This is the calendar-month MTD rate — useful for tracking how this specific month is shaping up. The <strong>incentive payout uses the 90-day rolling rate</strong>, which smooths out timing differences between invoicing and carrier payment cycles. The two numbers can differ.'+
+    '</div>';
+
+  openModal('Collection Rate — '+monthName+' MTD', currentDivLabel(true)+' · '+winLabel, body);
+}
+
+// Returns the bonus amount (string) earned for a given zone key.
+function bonusForZone(key){
+  if(key === 'bonus1') return '$250';
+  if(key === 'bonus2') return '$500';
+  if(key === 'wfh')    return '1 WFH day/wk';
+  if(key === 'review') return 'Pending review';
+  return '—';
+}
+
+// Drill-down: show the PC's historical 90-day rolling rate for each prior month-end,
+// going back to where 90 days of data is available.
+// Earliest data: January 2026 → first month with full 90d lookback is April 2026.
+// For each month, the "final" rate is computed as if "today" were the last day of that month.
+function drillIncentiveHistory(){
+  if(!LOADED.imsr || !LOADED.payments){
+    showToast('❌ Load IMSR and Payment Report first', 'error');
+    return;
+  }
+  var now = new Date();
+
+  // Build list of months from now going back to January 2026.
+  // (Data floor — IMSR + Payments do not exist before this date in our pilot dataset.)
+  var DATA_FLOOR = new Date(2026, 0, 1); // Jan 1, 2026
+  var months = [];
+  // Start with the previous month (this month is incomplete — covered by the live view).
+  var y = now.getFullYear();
+  var m = now.getMonth() - 1;
+  while(true){
+    var monthStart = new Date(y, m, 1);
+    if(monthStart < DATA_FLOOR) break;
+    months.push(monthStart);
+    m--;
+    if(m < 0){ m = 11; y--; }
+    if(months.length > 24) break; // safety cap
+  }
+
+  // For each month, compute the 90-day trailing rate as of that month's last day.
+  // Months whose 90d window starts before the data floor get marked "Insufficient data".
+  var rows = months.map(function(mStart){
+    var lastDay = new Date(mStart.getFullYear(), mStart.getMonth()+1, 0, 23, 59, 59);
+    var windowStart = new Date(lastDay.getTime() - 90*24*60*60*1000);
+    var label = mStart.toLocaleDateString('en-US',{month:'long', year:'numeric'});
+
+    if(windowStart < DATA_FLOOR){
+      return {label: label, insufficient: true, windowStart: windowStart, windowEnd: lastDay};
+    }
+    var r = divWindowRate(windowStart, lastDay);
+    if(r == null){
+      return {label: label, insufficient: false, noRate: true, windowStart: windowStart, windowEnd: lastDay};
+    }
+    var z = getCollectionZone(r.rate);
+    return {
+      label: label,
+      insufficient: false,
+      rate: r.rate,
+      paid: r.paid,
+      inv: r.inv,
+      zone: z,
+      bonus: bonusForZone(z.key),
+      windowStart: windowStart,
+      windowEnd: lastDay
+    };
+  });
+
+  // Build the table
+  var tableHtml = '<table class="job-list-table" style="width:100%;">'+
+    '<thead><tr>'+
+      '<th>Month</th>'+
+      '<th>Zone</th>'+
+      '<th style="text-align:right">90d Rate</th>'+
+      '<th style="text-align:right">Earned</th>'+
+      '<th style="text-align:right;color:#666;">Window</th>'+
+    '</tr></thead><tbody>';
+
+  rows.forEach(function(row){
+    if(row.insufficient){
+      tableHtml +=
+        '<tr style="opacity:0.5;">'+
+          '<td><span class="jl-name">'+row.label+'</span></td>'+
+          '<td style="font-size:11px;color:#666;font-style:italic;">Insufficient data — needs 90d of history</td>'+
+          '<td style="text-align:right;color:#555;">—</td>'+
+          '<td style="text-align:right;color:#555;">—</td>'+
+          '<td style="text-align:right;font-size:10px;color:#444;">'+row.windowStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' → '+row.windowEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</td>'+
+        '</tr>';
+      return;
+    }
+    if(row.noRate){
+      tableHtml +=
+        '<tr style="opacity:0.6;">'+
+          '<td><span class="jl-name">'+row.label+'</span></td>'+
+          '<td style="font-size:11px;color:#666;">No invoices in window</td>'+
+          '<td style="text-align:right;color:#555;">—</td>'+
+          '<td style="text-align:right;color:#555;">—</td>'+
+          '<td style="text-align:right;font-size:10px;color:#444;">'+row.windowStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' → '+row.windowEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</td>'+
+        '</tr>';
+      return;
+    }
+    var rateClr = zoneRateColor(row.zone.key);
+    var clrHex = {
+      red:'#f87171', yellow:'#facc15', green:'#4ade80',
+      blue:'#60a5fa', purple:'#c084fc', gold:'#fbbf24', orange:'#ff6a00', muted:'#bbb'
+    }[rateClr] || '#fff';
+    var bonusColor = (row.zone.key === 'bonus1' || row.zone.key === 'bonus2') ? '#60a5fa'
+                  : row.zone.key === 'wfh' ? '#c084fc'
+                  : row.zone.key === 'review' ? '#fbbf24'
+                  : '#666';
+    tableHtml +=
+      '<tr>'+
+        '<td><span class="jl-name">'+row.label+'</span></td>'+
+        '<td><span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:'+clrHex+';">'+row.zone.icon+' '+row.zone.name.split(' · ')[0]+'</span></td>'+
+        '<td style="text-align:right;font-weight:700;color:'+clrHex+';">'+row.rate.toFixed(1)+'%</td>'+
+        '<td style="text-align:right;font-weight:600;color:'+bonusColor+';">'+row.bonus+'</td>'+
+        '<td style="text-align:right;font-size:10px;color:#666;">'+row.windowStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' → '+row.windowEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</td>'+
+      '</tr>';
+  });
+  tableHtml += '</tbody></table>';
+
+  // Summary stats — total earned across history (count only bonus zones, not review)
+  var totalBonus = 0;
+  var wfhMonths = 0;
+  rows.forEach(function(r){
+    if(r.insufficient || r.noRate || !r.zone) return;
+    if(r.zone.key === 'bonus1') totalBonus += 250;
+    else if(r.zone.key === 'bonus2') totalBonus += 500;
+    else if(r.zone.key === 'wfh') wfhMonths++;
+  });
+
+  var summaryHtml =
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:16px 18px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;margin-bottom:18px;">'+
+      '<div>'+
+        '<div class="coll-lbl">Months Shown</div>'+
+        '<div class="coll-val orange">'+rows.length+'</div>'+
+        '<div class="coll-note">since January 2026</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="coll-lbl">Bonus Total</div>'+
+        '<div class="coll-val blue">'+fmt$(totalBonus)+'</div>'+
+        '<div class="coll-note">$250/$500 zones</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="coll-lbl">WFH Months</div>'+
+        '<div class="coll-val purple">'+wfhMonths+'</div>'+
+        '<div class="coll-note">100\u2013105% zone</div>'+
+      '</div>'+
+    '</div>';
+
+  var noteHtml =
+    '<div style="margin-top:14px;padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid #1a1a1a;border-radius:8px;font-size:10px;color:#666;line-height:1.5;">'+
+      '<strong style="color:#888;">📋 Note:</strong> Historical rates are computed by treating each month\'s last day as "today" and looking back 90 days. The earliest month with a full 90-day lookback is <strong>April 2026</strong> (window starts ~Jan 30). Months requiring data before Jan 1, 2026 are marked <em>Insufficient data</em>.'+
+    '</div>';
+
+  var body = summaryHtml + tableHtml + noteHtml;
+  openModal('Incentive History — '+currentDivLabel(true), 'Monthly 90-day rolling rate · prior months', body);
+}
+
+function renderCollections(){
+  if(!LOADED.payments){
+    document.getElementById('collectionsBlock').innerHTML = '<div class="panel-empty">Load Payment Report to see collections</div>';
+    return;
+  }
+  // MTD collected + payment count + MTD rate — pure operational reporting.
+  // This rate is the calendar-month figure, separate from the 90-day rolling rate
+  // used for incentive payout. Labeled "(MTD)" so PCs don't confuse them.
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var pays = DATA.payments.filter(function(p){
+    if(!inDiv(p.job)) return false;
+    if(!p.dateObj) return false;
+    return p.dateObj >= monthStart && p.dateObj <= now;
+  });
+  var total = pays.reduce(function(s,p){ return s+p.amt; }, 0);
+  var jobCount = new Set(pays.map(function(p){ return p.job; })).size;
+  var monthName = monthStart.toLocaleDateString('en-US', {month:'long'});
+
+  // ── MTD rate (calendar month) — different metric from the 90-day rolling rate. ──
+  var mtdRateBlockHtml =
+    '<div>'+
+      '<div class="coll-lbl">'+monthName+' Collection Rate (MTD)</div>'+
+      '<div class="coll-val muted">—</div>'+
+      '<div class="coll-note">Load IMSR to compute</div>'+
+    '</div>';
+  if(LOADED.imsr){
+    var mtd = divWindowRate(monthStart, now);
+    if(mtd != null){
+      // No zone styling here — this is operational, not compensation.
+      // Use orange (neutral) to visually distinguish from the colored incentive rate.
+      var mtdPct = (Math.round(mtd.rate*10)/10).toFixed(1) + '%';
+      mtdRateBlockHtml =
+        '<div onclick="drillMTDRate()" style="cursor:pointer;" title="Click to verify the math — see this month\'s invoices and payments">'+
+          '<div class="coll-lbl">'+monthName+' Collection Rate (MTD) <span style="color:#555;font-weight:400;font-size:8px;letter-spacing:0.5px;text-transform:none;margin-left:4px;">click to verify ↗</span></div>'+
+          '<div class="coll-val orange">'+mtdPct+'</div>'+
+          '<div class="coll-note">collected ÷ invoiced this month</div>'+
+        '</div>';
+    }
+  }
+
+  document.getElementById('collectionsBlock').innerHTML =
+    '<div class="coll-kpi">'+
+      '<div>'+
+        '<div class="coll-lbl">'+monthName+' Collected</div>'+
+        '<div class="coll-val orange">'+fmt$(total)+'</div>'+
+        '<div class="coll-note">across '+jobCount+' job'+(jobCount!==1?'s':'')+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="coll-lbl">Payments Count</div>'+
+        '<div class="coll-val green">'+pays.length+'</div>'+
+        '<div class="coll-note">individual payments</div>'+
+      '</div>'+
+      mtdRateBlockHtml+
+    '</div>';
+}
+
+// ── MY INCENTIVE TRACKER (pilot) ──
+// Houses the 90-day rolling rate and live zone. Official monthly payroll
+// snapshot is generated by Cowork (scheduled task) and sent to manager
+// separately — the hub is a live forecast view only.
+// Hidden entirely on the ALL tab (rollup view doesn't have a single PC to attribute to).
+function renderIncentiveTracker(){
+  var section = document.getElementById('incentiveSection');
+  if(!section) return;
+  // Hide section entirely on ALL or HOME (HOME doesn't even reach here normally, but safe)
+  if(currentDiv === 'ALL' || currentDiv === 'HOME'){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = '';
+
+  var metaEl = document.getElementById('incentiveMeta');
+  if(metaEl){
+    metaEl.textContent = 'Coordinator Collection Performance Incentive Program · ' + currentDivLabel(true);
+  }
+
+  if(!LOADED.payments){
+    document.getElementById('incentiveBlock').innerHTML = '<div class="panel-empty">Load Payment Report to see incentive tracking</div>';
+    return;
+  }
+
+  var win = trailing90Window();
+  var current = divWindowRate(win.start, win.end);
+  var rateBlockHtml = '';
+  var liveZoneBlockHtml = '';
+
+  if(current == null){
+    rateBlockHtml =
+      '<div class="coll-kpi" style="grid-template-columns:1fr;max-width:280px;">'+
+        '<div>'+
+          '<div class="coll-lbl">90-Day Collection Rate</div>'+
+          '<div class="coll-val muted">—</div>'+
+          '<div class="coll-note">Load IMSR to compute</div>'+
+        '</div>'+
+      '</div>';
+    liveZoneBlockHtml =
+      '<div class="zone-wrap">'+
+        '<div class="zone-card z-review">'+
+          '<div class="zone-icon">⏳</div>'+
+          '<div class="zone-body">'+
+            '<div class="zone-name">Zone tracking pending</div>'+
+            '<div class="zone-reward">Load the IMSR (Invoice Report) to enable Coordinator Collection Performance zone tracking.</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+  } else {
+    var zone = getCollectionZone(current.rate);
+    var rateColor = zoneRateColor(zone.key);
+    var ratePct = (Math.round(current.rate*10)/10).toFixed(1) + '%';
+    rateBlockHtml =
+      '<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">'+
+        '<div class="coll-kpi" style="grid-template-columns:1fr;max-width:300px;margin:0;">'+
+          '<div onclick="drillCollectionRate()" style="cursor:pointer;" title="Click to verify the math — see all 90-day invoices and payments">'+
+            '<div class="coll-lbl">90-Day Collection Rate <span style="color:#555;font-weight:400;font-size:8px;letter-spacing:0.5px;text-transform:none;margin-left:4px;">click to verify ↗</span></div>'+
+            '<div class="coll-val '+rateColor+'">'+ratePct+'</div>'+
+            '<div class="coll-note">trailing 90d, live</div>'+
+          '</div>'+
+        '</div>'+
+        '<button onclick="drillIncentiveHistory()" style="background:#1a1a1a;color:#bbb;border:1px solid #2a2a2a;padding:8px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.3px;margin-bottom:6px;">📊 View History</button>'+
+      '</div>';
+
+    liveZoneBlockHtml =
+      '<div class="zone-wrap">'+
+        '<div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:8px;">Live · updates with every report load</div>'+
+        '<div class="zone-card '+zone.cls+'">'+
+          '<div class="zone-icon">'+zone.icon+'</div>'+
+          '<div class="zone-body">'+
+            '<div class="zone-name">'+zone.name+'</div>'+
+            '<div class="zone-reward">'+zone.reward+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+  }
+
+  // Footnote — points PCs to the official monthly payroll record (Cowork-generated CSV)
+  // so they understand this live view is not the binding payout number.
+  var footerHtml =
+    '<div style="margin-top:14px;padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid #1a1a1a;border-radius:8px;font-size:10px;color:#666;line-height:1.5;">'+
+      '<strong style="color:#888;">📋 Official monthly payroll record:</strong> A payroll CSV is generated automatically each month-end and sent to your manager. This live view is a forecast — the official rate used for payout may differ slightly based on the data pulled at month-end.'+
+    '</div>';
+
+  document.getElementById('incentiveBlock').innerHTML =
+    rateBlockHtml +
+    liveZoneBlockHtml +
+    footerHtml;
+}
+
+// ── LIGHTWEIGHT WIP ──
+function renderWIP(){
+  if(!LOADED.wgp){
+    document.getElementById('wipPanel').innerHTML = '<div class="panel-empty">Load Working GP report to see WIP</div>';
+    document.getElementById('wipMeta').textContent = '';
+    return;
+  }
+  // Filter to Work in Progress only — matches WIP Monitor.
+  // Pending Sales rows are kept in DATA.wgp so the Pending Sales card
+  // can still flag jobs with costs already applied (💰 indicator).
+  var jobs = DATA.wgp.filter(function(r){ return r.status === 'Work in Progress' && inDiv(r.job); });
+  if(!jobs.length){
+    document.getElementById('wipPanel').innerHTML = '<div class="panel-empty">No active jobs for this division</div>';
+    document.getElementById('wipMeta').textContent = '0 jobs';
+    return;
+  }
+  // Sort: over -> warning -> on -> na, then biggest overshoot first
+  var tierOrder = {over:0, warning:1, on:2, na:3};
+  jobs.sort(function(a,b){
+    if(tierOrder[a.tier] !== tierOrder[b.tier]) return tierOrder[a.tier] - tierOrder[b.tier];
+    if(a.tier==='na' || b.tier==='na') return 0;
+    return (a.ceiling - a.costPct) - (b.ceiling - b.costPct);
+  });
+  var over = jobs.filter(function(j){ return j.tier==='over'; }).length;
+  var warn = jobs.filter(function(j){ return j.tier==='warning'; }).length;
+  var on = jobs.filter(function(j){ return j.tier==='on'; }).length;
+  var na = jobs.filter(function(j){ return j.tier==='na'; }).length;
+  document.getElementById('wipMeta').innerHTML =
+    '<span style="color:#ff6a00;font-weight:700">'+jobs.length+'</span> job'+(jobs.length!==1?'s':'')+' · '+
+    '<span style="color:#f87171">🚨 '+over+' over</span> · '+
+    '<span style="color:#facc15">⚠️ '+warn+' warning</span> · '+
+    '<span style="color:#4ade80">✓ '+on+' on budget</span>' +
+    (na ? ' · <span style="color:#555">'+na+' ungraded</span>' : '');
+
+  var html = '<div class="job-list scroll-list"><table class="job-list-table"><thead><tr>'+
+    '<th>Job #</th><th>Job Name</th><th>Subdiv</th><th>Foreman</th>'+
+    '<th style="text-align:right">Cost %</th><th style="text-align:right">Budget %</th>'+
+    '<th style="text-align:right">$ Variance</th><th style="text-align:right">Age</th><th style="text-align:right">Status</th>'+
+    '</tr></thead><tbody>';
+  jobs.forEach(function(j){
+    var badge = badgeFor(j.tier);
+    var costStr = j.costPct!=null ? (j.costPct*100).toFixed(1)+'%' : '—';
+    var ceilStr = j.ceiling!=null ? (j.ceiling*100).toFixed(0)+'%' : '—';
+    var varStr = j.varianceDollars!=null ?
+      '<span style="color:'+(j.varianceDollars<0?C.alert:C.great)+'">'+(j.varianceDollars>=0?'+':'-')+fmt$(Math.abs(j.varianceDollars))+'</span>' : '—';
+    // Age in WIP — matches Pending Sales card tier colors (jl-days class)
+    var d = j.daysInWip;
+    var ageCls = d == null ? '' : (d > 180 ? 'red' : d > 90 ? 'yellow' : d > 30 ? 'orange' : 'green');
+    var ageStr = d == null ? '—' : d + 'd';
+    html += '<tr>'+
+      '<td><span class="jl-jobnum">'+j.job+'</span></td>'+
+      '<td><span class="jl-name" title="'+escapeAttr(j.name)+'">'+(j.name||'—')+'</span></td>'+
+      '<td style="font-size:10px;color:#888">'+j.rawDiv+'</td>'+
+      '<td style="font-size:11px;color:#aaa">'+(j.foreman||'—')+'</td>'+
+      '<td style="text-align:right">'+costStr+'</td>'+
+      '<td style="text-align:right;color:#666;font-size:11px">'+ceilStr+'</td>'+
+      '<td style="text-align:right" class="jl-amt">'+varStr+'</td>'+
+      '<td style="text-align:right"><span class="jl-days '+ageCls+'">'+ageStr+'</span></td>'+
+      '<td style="text-align:right">'+badge+'</td>'+
+      '</tr>';
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('wipPanel').innerHTML = html;
+}
+
+function badgeFor(tier){
+  if(tier==='on') return '<span class="badge badge-on">ON BUDGET</span>';
+  if(tier==='warning') return '<span class="badge badge-warn">⚠️ WARNING</span>';
+  if(tier==='over') return '<span class="badge badge-over">🚨 OVER</span>';
+  return '<span class="badge badge-na">—</span>';
+}
+
+function escapeAttr(s){
+  return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+// ── PENDING SALES ──
+function renderPendingSales(){
+  if(!LOADED.aging){
+    document.getElementById('pendingSalesPanel').innerHTML = '<div class="panel-empty">Load Job Aging Report</div>';
+    return;
+  }
+  var jobs = DATA.aging.filter(function(r){
+    return r.currentStatus === 'Pending Sales' && inDiv(r.job);
+  });
+  if(!jobs.length){
+    document.getElementById('pendingSalesPanel').innerHTML = '<div class="panel-empty" style="color:#4ade80">✓ No jobs in Pending Sales</div>';
+    return;
+  }
+  // Sort: oldest (highest daysInStatus) first
+  jobs.sort(function(a,b){ return (b.daysInStatus||0) - (a.daysInStatus||0); });
+  // Build cost lookup from Working GP (if loaded). Pending Sales rows now appear
+  // in the WGP export, so we can flag jobs with costs already applied (>$150).
+  // If WGP not loaded → no indicators rendered, no error.
+  var costByJob = {};
+  if(LOADED.wgp){
+    DATA.wgp.forEach(function(w){ costByJob[w.job] = w.cost || 0; });
+  }
+  var html = '<div style="font-size:11px;color:#666;margin-bottom:8px;">'+
+    '<span style="color:#ff6a00;font-weight:700">'+jobs.length+'</span> in Pending Sales · oldest first'+
+    '</div>';
+  html += '<div class="scroll-list"><table class="job-list-table">'+
+    '<thead><tr><th>Job #</th><th style="text-align:center;width:24px;">$</th><th>Job Name</th><th style="text-align:right">Age</th></tr></thead><tbody>';
+  jobs.slice(0, 100).forEach(function(j){
+    var d = j.daysInStatus;
+    var cls = d == null ? '' : (d > 180 ? 'red' : d > 90 ? 'yellow' : d > 30 ? 'orange' : 'green');
+    var cost = costByJob[j.job];
+    var costCell = (cost != null && cost > 150)
+      ? '<span title="Costs applied: $'+Math.round(cost).toLocaleString()+'" style="color:#facc15;font-size:13px;">💰</span>'
+      : '';
+    html += '<tr>'+
+      '<td><span class="jl-jobnum">'+j.job+'</span></td>'+
+      '<td style="text-align:center;">'+costCell+'</td>'+
+      '<td><span class="jl-name" title="'+escapeAttr(j.name)+'">'+(j.name||'—')+'</span></td>'+
+      '<td style="text-align:right"><span class="jl-days '+cls+'">'+(d==null?'—':d+'d')+'</span></td>'+
+      '</tr>';
+  });
+  html += '</tbody></table></div>';
+  if(jobs.length > 100){
+    html += '<div style="text-align:center;font-size:10px;color:#555;margin-top:8px;">Showing oldest 100 of '+jobs.length+'</div>';
+  }
+  document.getElementById('pendingSalesPanel').innerHTML = html;
+}
+
+// ── COMPLETED WITHOUT PAPERWORK ──
+function renderCWP(){
+  if(!LOADED.aging){
+    document.getElementById('cwpPanel').innerHTML = '<div class="panel-empty">Load Job Aging Report</div>';
+    return;
+  }
+  var jobs = DATA.aging.filter(function(r){
+    return r.currentStatus === 'Completed Without Paperwork' && inDiv(r.job);
+  });
+  if(!jobs.length){
+    document.getElementById('cwpPanel').innerHTML = '<div class="panel-empty" style="color:#4ade80">✓ No jobs awaiting paperwork</div>';
+    return;
+  }
+  jobs.sort(function(a,b){ return (b.daysInStatus||0) - (a.daysInStatus||0); });
+  var html = '<div style="font-size:11px;color:#666;margin-bottom:8px;">'+
+    '<span style="color:#ff6a00;font-weight:700">'+jobs.length+'</span> awaiting paperwork · oldest first'+
+    '</div>';
+  html += '<div class="scroll-list"><table class="job-list-table">'+
+    '<thead><tr><th>Job #</th><th>Job Name</th><th style="text-align:right">Age</th></tr></thead><tbody>';
+  jobs.slice(0, 100).forEach(function(j){
+    var d = j.daysInStatus;
+    var cls = d == null ? '' : (d > 60 ? 'red' : d > 30 ? 'yellow' : d > 14 ? 'orange' : 'green');
+    html += '<tr>'+
+      '<td><span class="jl-jobnum">'+j.job+'</span></td>'+
+      '<td><span class="jl-name" title="'+escapeAttr(j.name)+'">'+(j.name||'—')+'</span></td>'+
+      '<td style="text-align:right"><span class="jl-days '+cls+'">'+(d==null?'—':d+'d')+'</span></td>'+
+      '</tr>';
+  });
+  html += '</tbody></table></div>';
+  if(jobs.length > 100){
+    html += '<div style="text-align:center;font-size:10px;color:#555;margin-top:8px;">Showing oldest 100 of '+jobs.length+'</div>';
+  }
+  document.getElementById('cwpPanel').innerHTML = html;
+}
+
+// ── TOTAL RESPONSIBILITY ──
+// Hero strip above AR Aging + Work in Motion. Sums AR Aging (collectible) + Work in Motion
+// (signed but not yet collectible). Pending Sales and On Hold deliberately excluded —
+// pre-contract / non-active work shouldn't count as "your responsibility right now."
+function renderTotalResponsibility(){
+  var el = document.getElementById('responsibilityStrip');
+  if(!LOADED.ar){
+    el.innerHTML = '<div class="rs-left"><div class="rs-lbl">Total Responsibility</div>'+
+      '<div class="rs-sub">Load AR Report to see total</div></div>';
+    return;
+  }
+  var ar = DATA.ar.filter(function(r){
+    return r.status === 'Accounts Receivable' && r.bal > 0 && inDiv(r.job);
+  });
+  var arTotal = ar.reduce(function(s,r){ return s+r.bal; }, 0);
+  var arCount = ar.length;
+
+  var wim = DATA.ar.filter(function(r){
+    if(!inDiv(r.job)) return false;
+    var s = r.status;
+    // Status strings match the AR Report exactly — note lowercase "without" in CwoP.
+    return s === 'Pre-Production' || s === 'Work in Progress' ||
+           s === 'Completed without Paperwork' || s === 'Invoice Pending';
+  });
+  // Sum positive balances only — $0 and credit rows contribute to count but not to $ total.
+  var wimTotal = wim.reduce(function(s,r){ return s + (r.bal > 0 ? r.bal : 0); }, 0);
+  var wimCount = wim.length;
+
+  var total = arTotal + wimTotal;
+  var count = arCount + wimCount;
+
+  if(count === 0){
+    el.innerHTML = '<div class="rs-left">'+
+      '<div class="rs-lbl">Total Responsibility</div>'+
+      '<div class="rs-sub">No active work in this division</div></div>'+
+      '<div class="rs-right"><div class="rs-empty">$0</div></div>';
+    return;
+  }
+  el.innerHTML = '<div class="rs-left">'+
+    '<div class="rs-lbl">Total Responsibility</div>'+
+    '<div class="rs-sub">All signed work · collectible + in motion</div>'+
+    '</div>'+
+    '<div class="rs-right">'+
+    '<div class="rs-val">'+fmt$(total)+'</div>'+
+    '<div class="rs-jobs">'+count+' jobs</div>'+
+    '</div>';
+}
+
+// ── WORK IN MOTION ──
+// Signed work not yet collectible: Pre-Prod + WIP + CwoP + Invoice Pending.
+// Replaces the old standalone Invoice Pending panel — that alert still lives on the triage strip.
+function renderWorkInMotion(){
+  var el = document.getElementById('workInMotionPanel');
+  if(!LOADED.ar){
+    el.innerHTML = '<div class="panel-empty">Load AR Report to see Work in Motion</div>';
+    return;
+  }
+  // Status → bar config. Order matches workflow: earliest → latest stage.
+  // Status keys match the AR Report verbatim — note lowercase "without" in CwoP.
+  var statusDefs = [
+    {key:'Pre-Production',                 lbl:'Pre-Prod',         color:'#60a5fa'},
+    {key:'Work in Progress',               lbl:'WIP',              color:'#ff6a00'},
+    {key:'Completed without Paperwork',    lbl:'CwoP',             color:'#facc15'},
+    {key:'Invoice Pending',                lbl:'Invoice Pending',  color:'#fb923c'}
+  ];
+  var buckets = statusDefs.map(function(d){
+    return {key:d.key, lbl:d.lbl, color:d.color, jobs:[], total:0};
+  });
+  var bucketIdx = {};
+  buckets.forEach(function(b,i){ bucketIdx[b.key] = i; });
+
+  DATA.ar.forEach(function(r){
+    if(!inDiv(r.job)) return;
+    var i = bucketIdx[r.status];
+    if(i === undefined) return;
+    // Count all jobs in the status; sum positive balances only for $ total.
+    // A $0 Invoice Pending row is a real workflow item even though it adds no dollars.
+    buckets[i].jobs.push(r);
+    if(r.bal > 0) buckets[i].total += r.bal;
+  });
+  var grandTotal = buckets.reduce(function(s,b){ return s+b.total; }, 0);
+  var grandCount = buckets.reduce(function(s,b){ return s+b.jobs.length; }, 0);
+
+  if(grandCount === 0){
+    el.innerHTML = '<div class="wim-header">'+
+      '<div class="wim-left"><div class="panel-title">Work in Motion</div></div>'+
+      '<div class="wim-right">'+
+      '<div class="wim-headline-lbl">Active Production</div>'+
+      '<div class="wim-headline-val" style="color:#4ade80">$0</div>'+
+      '<div class="wim-headline-sub">No active work in this division</div>'+
+      '</div></div>'+
+      '<div class="panel-empty" style="color:#4ade80">✓ All work is either invoiced or completed</div>';
+    return;
+  }
+
+  var html = '<div class="wim-header">'+
+    '<div class="wim-left"><div class="panel-title">Work in Motion</div></div>'+
+    '<div class="wim-right">'+
+    '<div class="wim-headline-lbl">Active Production</div>'+
+    '<div class="wim-headline-val">'+fmt$(grandTotal)+'</div>'+
+    '<div class="wim-headline-sub">'+grandCount+' job'+(grandCount!==1?'s':'')+' · signed but not yet collectible</div>'+
+    '</div></div>';
+
+  html += '<div class="aging-bars wim-bars">';
+  buckets.forEach(function(b){
+    var pct = grandTotal > 0 ? (b.total / grandTotal * 100) : 0;
+    var safeKey = b.key.replace(/'/g, "\\'");
+    html += '<div class="aging-bar-row" onclick="drillWorkInMotion(\''+safeKey+'\')" style="cursor:pointer;">'+
+      '<div class="aging-bar-lbl">'+b.lbl+'</div>'+
+      '<div class="aging-bar-track"><div class="aging-bar-fill" style="width:'+Math.max(pct,2)+'%;background:'+b.color+'">'+
+      (pct >= 8 ? b.jobs.length + ' job'+(b.jobs.length!==1?'s':'') : '') +
+      '</div></div>'+
+      '<div><div class="aging-bar-amt">'+fmt$(b.total)+'</div><div class="aging-bar-count">'+b.jobs.length+' job'+(b.jobs.length!==1?'s':'')+'</div></div>'+
+      '</div>';
+  });
+  html += '</div>';
+
+  html += '<div class="wim-note">'+
+    'Pre-Production · WIP · Completed without Paperwork · Invoice Pending. '+
+    '<span class="accent">Once invoiced, work moves into AR Aging above.</span> '+
+    'Tap any row to see the jobs.'+
+    '</div>';
+
+  el.innerHTML = html;
+}
+
+// ── ESTIMATOR PIPELINE ──
+function renderPipeline(){
+  if(!LOADED.imsr){
+    document.getElementById('pipelinePanel').innerHTML = '<div class="panel-empty">Load IMSR to see pipeline</div>';
+    document.getElementById('pipelineMeta').textContent = '';
+    return;
+  }
+  // Default: month-to-date signed contracts in this division
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var rows = DATA.imsr.filter(function(r){
+    if(!inDiv(r.job)) return false;
+    if(!r.dateObj) return false;
+    return r.dateObj >= monthStart && r.dateObj <= now;
+  });
+  if(!rows.length){
+    document.getElementById('pipelinePanel').innerHTML = '<div class="panel-empty">No signed contracts this period</div>';
+    document.getElementById('pipelineMeta').textContent = monthStart.toLocaleDateString('en-US',{month:'long'})+' — 0 invoices';
+    return;
+  }
+  // Group by estimator
+  var byEst = {};
+  rows.forEach(function(r){
+    var e = r.est || '— Unassigned —';
+    if(!byEst[e]) byEst[e] = {est:e, count:0, total:0};
+    byEst[e].count++;
+    byEst[e].total += r.amt;
+  });
+  var sorted = Object.values(byEst).sort(function(a,b){ return b.total - a.total; });
+  var grandTotal = sorted.reduce(function(s,r){ return s+r.total; }, 0);
+
+  document.getElementById('pipelineMeta').textContent =
+    monthStart.toLocaleDateString('en-US',{month:'long'}) + ' · ' + fmt$(grandTotal) + ' signed';
+
+  var html = '<table class="job-list-table">'+
+    '<thead><tr><th>Estimator</th><th style="text-align:right">Invoices</th><th style="text-align:right">Total Signed</th><th style="text-align:right">% of Div</th></tr></thead><tbody>';
+  sorted.forEach(function(r){
+    var pct = grandTotal > 0 ? (r.total/grandTotal*100) : 0;
+    // Use a stable key for the click — escape the estimator name for the JS arg
+    var estKey = r.est.replace(/'/g,"\\'").replace(/"/g,'\\"');
+    html += '<tr style="cursor:pointer;" onclick="drillPipeline(\''+estKey+'\')" title="Click to see this estimator\'s jobs">'+
+      '<td style="color:#e5e5ea">'+r.est+'</td>'+
+      '<td style="text-align:right">'+r.count+'</td>'+
+      '<td style="text-align:right" class="jl-amt"><span style="color:#ff6a00">'+fmt$(r.total)+'</span></td>'+
+      '<td style="text-align:right;font-size:11px;color:#666">'+pct.toFixed(1)+'%</td>'+
+      '</tr>';
+  });
+  html += '</tbody></table>';
+  html += '<div style="margin-top:10px;font-size:10px;color:#555;text-align:right;">Click any estimator to see their jobs</div>';
+  document.getElementById('pipelinePanel').innerHTML = html;
+}
+
+function drillPipeline(estName){
+  console.log('[PC Hub] drillPipeline called:', estName);
+  try {
+    var now = new Date();
+    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    var rows = DATA.imsr.filter(function(r){
+      if(!inDiv(r.job)) return false;
+      if(!r.dateObj) return false;
+      if(r.dateObj < monthStart || r.dateObj > now) return false;
+      return r.est === estName;
+    });
+    rows.sort(function(a,b){ return b.amt - a.amt; });
+    var total = rows.reduce(function(s,r){ return s+r.amt; }, 0);
+    var monthName = monthStart.toLocaleDateString('en-US', {month:'long'});
+    var subDivLbl = currentDivLabel(false);
+    var sub = rows.length+' invoice'+(rows.length!==1?'s':'')+' · '+fmt$(total)+' · '+monthName+' · '+subDivLbl;
+    var body = '<table class="job-list-table"><thead><tr>'+
+      '<th>Date</th><th>Job #</th><th>Subdivision</th><th>Loss Cat</th><th style="text-align:right">Amount</th>'+
+      '</tr></thead><tbody>';
+    rows.forEach(function(r){
+      var dateStr = r.dateObj ? (r.dateObj.getMonth()+1)+'/'+r.dateObj.getDate()+'/'+r.dateObj.getFullYear() : '—';
+      body += '<tr>'+
+        '<td style="font-size:11px;color:#aaa">'+dateStr+'</td>'+
+        '<td><span class="jl-jobnum">'+r.job+'</span></td>'+
+        '<td style="font-size:10px;color:#888">'+r.div+'</td>'+
+        '<td style="font-size:11px;color:#aaa">'+(r.cat||'—')+'</td>'+
+        '<td style="text-align:right" class="jl-amt"><span style="color:#ff6a00">'+fmt$(r.amt)+'</span></td>'+
+        '</tr>';
+    });
+    body += '</tbody></table>';
+    openModal('📈 '+estName, sub, body);
+  } catch(err){
+    console.error('[PC Hub] drillPipeline error:', err);
+    showToast('❌ Drilldown failed: '+err.message, 'error');
+  }
+}
+
+// ── DRILLDOWNS ──
+function drillTriage(which){
+  console.log('[PC Hub] drillTriage called:', which, '| currentDiv:', currentDiv);
+  var title, sub, rows = [];
+  try {
+    if(which==='ar60'){
+    title = '🕐 AR 60+ Days';
+    rows = DATA.ar.filter(function(r){
+      return r.status === 'Accounts Receivable' && r.bal > 0 && r.daysAged != null && r.daysAged > 60 && inDiv(r.job);
+    });
+    rows.sort(function(a,b){ return b.daysAged - a.daysAged; });
+    sub = rows.length + ' invoice'+(rows.length!==1?'s':'')+' · '+fmt$(rows.reduce(function(s,r){return s+r.bal;},0))+' owed';
+    openModal(title, sub, renderArTable(rows));
+  } else if(which==='ip'){
+    title = '📨 Invoice Pending';
+    rows = DATA.aging.filter(function(r){ return r.currentStatus==='Invoice Pending' && inDiv(r.job); });
+    rows.sort(function(a,b){ return (b.daysInStatus||0)-(a.daysInStatus||0); });
+    sub = rows.length + ' job'+(rows.length!==1?'s':'');
+    openModal(title, sub, renderAgingTable(rows));
+  } else if(which==='over'){
+    title = '🚨 Jobs Over Budget';
+    rows = DATA.wgp.filter(function(r){ return r.tier==='over' && inDiv(r.job); });
+    rows.sort(function(a,b){ return (a.ceiling-a.costPct)-(b.ceiling-b.costPct); });
+    sub = rows.length + ' job'+(rows.length!==1?'s':'');
+    openModal(title, sub, renderWgpTable(rows));
+  } else if(which==='cwp'){
+    title = '📄 Completed Without Paperwork';
+    rows = DATA.aging.filter(function(r){ return r.currentStatus==='Completed Without Paperwork' && inDiv(r.job); });
+    rows.sort(function(a,b){ return (b.daysInStatus||0)-(a.daysInStatus||0); });
+    sub = rows.length + ' job'+(rows.length!==1?'s':'');
+    openModal(title, sub, renderAgingTable(rows));
+  }
+  } catch(err){
+    console.error('[PC Hub] drillTriage error:', err);
+    showToast('❌ Drilldown failed: '+err.message, 'error');
+  }
+}
+
+function drillAging(bucketKey){
+  var ranges = {
+    'current': [0, 30, 'Current (0-29 days)'],
+    '30-60':   [30, 60, '30-60 days'],
+    '60-90':   [60, 90, '60-90 days'],
+    '90-120':  [90, 120, '90-120 days'],
+    '120+':    [120, Infinity, '120+ days']
+  };
+  var r = ranges[bucketKey]; if(!r) return;
+  var rows = DATA.ar.filter(function(x){
+    if(x.status !== 'Accounts Receivable' || x.bal <= 0 || !inDiv(x.job)) return false;
+    var d = x.daysAged == null ? 0 : x.daysAged;
+    return d >= r[0] && d < r[1];
+  });
+  rows.sort(function(a,b){ return b.daysAged - a.daysAged; });
+  var total = rows.reduce(function(s,x){ return s+x.bal; }, 0);
+  openModal('AR Aging — '+r[2], rows.length+' invoice'+(rows.length!==1?'s':'')+' · '+fmt$(total), renderArTable(rows));
+}
+
+// Drill from a Work in Motion bar → modal of jobs in that status.
+// Reuses renderArTable (AR rows have job/name/coordinator/bal fields we want to display).
+// Note: daysAged shown in this table is from Date Invoiced — for Pre-Prod / WIP / CwoP
+// those will mostly be blank, which is correct (no invoice has been issued yet).
+function drillWorkInMotion(statusKey){
+  var labels = {
+    'Pre-Production':              'Work in Motion — Pre-Production',
+    'Work in Progress':            'Work in Motion — WIP',
+    'Completed without Paperwork': 'Work in Motion — Completed without Paperwork',
+    'Invoice Pending':             'Work in Motion — Invoice Pending'
+  };
+  var title = labels[statusKey] || ('Work in Motion — '+statusKey);
+  var rows = DATA.ar.filter(function(r){
+    return r.status === statusKey && inDiv(r.job);
+  });
+  // Sort: largest balance first (most material first)
+  rows.sort(function(a,b){ return (b.bal||0) - (a.bal||0); });
+  var total = rows.reduce(function(s,r){ return s+(r.bal||0); }, 0);
+  var sub = rows.length + ' job'+(rows.length!==1?'s':'')+' · '+fmt$(total);
+  openModal(title, sub, renderArTable(rows));
+}
+
+function renderArTable(rows){
+  if(!rows.length) return '<div style="padding:30px;text-align:center;color:#4ade80;">No items.</div>';
+  var html = '<table class="job-list-table"><thead><tr>'+
+    '<th>Job #</th><th>Job Name</th><th>Coordinator</th><th style="text-align:right">Days Aged</th><th style="text-align:right">Balance</th>'+
+    '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    var d = r.daysAged;
+    var cls = d==null?'':(d>120?'red':d>90?'yellow':d>60?'orange':d>30?'yellow':'green');
+    html += '<tr>'+
+      '<td><span class="jl-jobnum">'+r.job+'</span></td>'+
+      '<td><span class="jl-name">'+(r.name||'—')+'</span></td>'+
+      '<td style="font-size:11px;color:#aaa">'+(r.coordinator||'—')+'</td>'+
+      '<td style="text-align:right"><span class="jl-days '+cls+'">'+(d==null?'—':d+'d')+'</span></td>'+
+      '<td style="text-align:right" class="jl-amt"><span style="color:#ff6a00">'+fmt$(r.bal)+'</span></td>'+
+      '</tr>';
+  });
+  return html + '</tbody></table>';
+}
+
+function renderAgingTable(rows){
+  if(!rows.length) return '<div style="padding:30px;text-align:center;color:#4ade80;">No items.</div>';
+  var html = '<table class="job-list-table"><thead><tr>'+
+    '<th>Job #</th><th>Job Name</th><th style="text-align:right">Days in Status</th>'+
+    '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    var d = r.daysInStatus;
+    var cls = d==null?'':(d>60?'red':d>30?'yellow':d>14?'orange':'green');
+    html += '<tr>'+
+      '<td><span class="jl-jobnum">'+r.job+'</span></td>'+
+      '<td><span class="jl-name">'+(r.name||'—')+'</span></td>'+
+      '<td style="text-align:right"><span class="jl-days '+cls+'">'+(d==null?'—':d+'d')+'</span></td>'+
+      '</tr>';
+  });
+  return html + '</tbody></table>';
+}
+
+function renderWgpTable(rows){
+  if(!rows.length) return '<div style="padding:30px;text-align:center;color:#4ade80;">No items.</div>';
+  var html = '<table class="job-list-table"><thead><tr>'+
+    '<th>Job #</th><th>Job Name</th><th>Subdiv</th><th>Foreman</th>'+
+    '<th style="text-align:right">Cost %</th><th style="text-align:right">Budget %</th><th style="text-align:right">$ Over</th>'+
+    '</tr></thead><tbody>';
+  rows.forEach(function(j){
+    var costStr = j.costPct!=null ? (j.costPct*100).toFixed(1)+'%' : '—';
+    var ceilStr = j.ceiling!=null ? (j.ceiling*100).toFixed(0)+'%' : '—';
+    html += '<tr>'+
+      '<td><span class="jl-jobnum">'+j.job+'</span></td>'+
+      '<td><span class="jl-name">'+(j.name||'—')+'</span></td>'+
+      '<td style="font-size:10px;color:#888">'+j.rawDiv+'</td>'+
+      '<td style="font-size:11px;color:#aaa">'+(j.foreman||'—')+'</td>'+
+      '<td style="text-align:right;color:#f87171;font-weight:700">'+costStr+'</td>'+
+      '<td style="text-align:right;color:#666;font-size:11px">'+ceilStr+'</td>'+
+      '<td style="text-align:right" class="jl-amt"><span style="color:#f87171">'+(j.varianceDollars!=null?'-'+fmt$(Math.abs(j.varianceDollars)):'—')+'</span></td>'+
+      '</tr>';
+  });
+  return html + '</tbody></table>';
+}
+
+// ── MODAL ──
+function openModal(title, sub, body){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalSub').textContent = sub;
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(e){
+  if(e && e.target !== document.getElementById('modal')) return;
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(null); });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUBLISH-TO-TEAM SYSTEM
+// ─────────────────────────────────────────────────────────────────────────────
+// The hub can run in two modes:
+//   WORKING MODE — drop zone visible, PCs/Cowork drag-drop reports
+//   PUBLISHED MODE — window.__BAKED_DATA__ is present; data is hydrated from it,
+//                    drop zone hidden, Last Published bar shown
+//
+// Publish flow: Cowork loads the hub, drag-drops reports, clicks Publish to Team.
+// publishToTeam() reads the current page HTML, injects a <script> block at the
+// BAKED_DATA marker, and downloads celco_pc_hub_published.html. Cowork commits
+// that file to GitHub Pages. PCs visit celco_pc_hub_published.html and see the
+// baked data — no Cotality dependency, no drop zones.
+
+// Fields in DATA.* that contain Date objects — rehydrated from ISO strings on load.
+// Currently only ar/payments/imsr carry Date objects on their row records.
+// aging stores only daysInStatus (number) and wgp stores only daysInWip (number) —
+// no Date fields, no rehydration needed for those.
+var DATE_FIELDS_BY_KEY = {
+  ar:       ['dateObj'],
+  payments: ['dateObj'],
+  imsr:     ['dateObj'],
+  aging:    [],
+  wgp:      []
+};
+
+function rehydrateBakedData(baked){
+  if(!baked || !baked.DATA) return false;
+  ['ar','payments','imsr','aging','wgp'].forEach(function(key){
+    if(baked.DATA[key] && Array.isArray(baked.DATA[key])){
+      var dateFields = DATE_FIELDS_BY_KEY[key] || [];
+      DATA[key] = baked.DATA[key].map(function(row){
+        if(!row || typeof row !== 'object') return row;
+        dateFields.forEach(function(f){
+          if(row[f] && typeof row[f] === 'string'){
+            var d = new Date(row[f]);
+            row[f] = isNaN(d) ? null : d;
+          }
+        });
+        return row;
+      });
+    }
+  });
+  if(baked.LOADED){
+    Object.keys(baked.LOADED).forEach(function(k){ LOADED[k] = !!baked.LOADED[k]; });
+  }
+  // Restore report pill labels so the user sees "Refreshed by Cowork" instead of "Not loaded"
+  if(baked.fileNames){
+    Object.keys(baked.fileNames).forEach(function(k){
+      if(LOADED[k]) updateReportPill(k, baked.fileNames[k], (DATA[k]||[]).length);
+    });
+  }
+  return true;
+}
+
+function publishToTeam(){
+  // Validate: at least one report must be loaded
+  var anyLoaded = Object.values(LOADED).some(function(v){ return v; });
+  if(!anyLoaded){
+    showToast('❌ Load at least one report before publishing', 'error');
+    return;
+  }
+  // Build the baked payload. JSON.stringify will convert Date objects to ISO strings
+  // automatically; rehydrateBakedData() reverses this on load.
+  var fileNames = {};
+  document.querySelectorAll('.report-pill').forEach(function(pill){
+    var key = pill.getAttribute('data-key');
+    var name = pill.querySelector('.report-pill-name');
+    if(LOADED[key] && name) fileNames[key] = name.textContent || key;
+  });
+  var baked = {
+    publishedAt: new Date().toISOString(),
+    publishedBy: 'Cowork',
+    LOADED: LOADED,
+    DATA: DATA,
+    fileNames: fileNames
+  };
+  var bakedJson;
+  try {
+    bakedJson = JSON.stringify(baked);
+  } catch(err){
+    showToast('❌ Failed to serialize data: '+err.message, 'error');
+    return;
+  }
+
+  // Fetch the current page HTML, inject the bake script at the marker, download
+  fetch(window.location.href, {cache:'no-store'}).then(function(r){ return r.text(); }).then(function(html){
+    var marker = '<!-- BAKED_DATA -->';
+    if(html.indexOf(marker) === -1){
+      showToast('❌ BAKED_DATA marker not found in source HTML', 'error');
+      return;
+    }
+    // Escape any close-script-tag patterns inside JSON to prevent breaking out
+    // of the script tag. Build search/replace via concatenation so this very
+    // source code does not contain a literal close-script token (which would
+    // prematurely terminate the script in the browser).
+    var closeScriptTag = '<'+'/script';
+    var safeJson = bakedJson.replace(new RegExp(closeScriptTag, 'gi'), '<'+'\\/script');
+    var inject = '<script>window.__BAKED_DATA__ = '+safeJson+';<'+'/script>';
+    var publishedHtml = html.replace(marker, inject);
+    // Trigger download
+    var blob = new Blob([publishedHtml], {type:'text/html'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'celco_pc_hub_published.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('📤 Published file downloaded — commit to GitHub Pages', 'success');
+  }).catch(function(err){
+    showToast('❌ Failed to fetch page source: '+err.message+'. If running from file://, try a local server.', 'error');
+  });
+}
+
+// ── PAGE LOAD: warn immediately if SheetJS didn't load ──
+window.addEventListener('load', function(){
+  // PUBLISHED MODE — hydrate from baked data instead of waiting for drag-drop
+  if(typeof window.__BAKED_DATA__ !== 'undefined' && window.__BAKED_DATA__){
+    document.body.classList.add('published-mode');
+    var ok = rehydrateBakedData(window.__BAKED_DATA__);
+    if(ok){
+      // Update the Last Published timestamp
+      var lpTime = document.getElementById('lpTime');
+      if(lpTime && window.__BAKED_DATA__.publishedAt){
+        var pub = new Date(window.__BAKED_DATA__.publishedAt);
+        lpTime.textContent = pub.toLocaleString('en-US', {
+          month:'short', day:'numeric', year:'numeric',
+          hour:'numeric', minute:'2-digit', hour12:true,
+          timeZoneName:'short'
+        });
+      }
+      renderDashboard();
+    }
+    renderHome();
+    setInterval(renderHome, 5 * 60 * 1000);
+    return;
+  }
+  // WORKING MODE — original flow
+  if(typeof XLSX === 'undefined'){
+    showToast('⚠️ SheetJS library did not load — .xlsx files will not parse. Job Aging Report (.xls) will still work.', 'warn');
+  }
+  renderHome();
+  // Self-correcting refresh so the greeting/date stay current on always-on
+  // TV displays without anyone touching the page (rolls over morning->
+  // afternoon->evening and across midnight on its own).
+  setInterval(renderHome, 5 * 60 * 1000);
+});
+</script>
+</body>
+</html>
