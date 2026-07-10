@@ -1,0 +1,14 @@
+{
+ "note": "CELCO Monday Report KPI history. k1=jobs past 5-day standard, k2=aged-60+ silent accounts, k3=silent balance at risk ($). Appended by run_monday_report.py at bake time; values computed by the report template\u2019s own data layer. Started 2026-07 \u2014 no backfill, the interaction standard is new; first weeks are the baseline period.",
+ "baseline_weeks": 6,
+ "rows": [
+  {
+   "week_of": "2026-07-13",
+   "baked": "2026-07-09",
+   "k1": 250,
+   "k2": 37,
+   "k3": 136790,
+   "source": "live"
+  }
+ ]
+}
