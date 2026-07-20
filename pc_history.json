@@ -1,0 +1,49 @@
+{
+ "note": "CELCO Monday Report per-PC history. Per coordinator, per week: tracked=jobs the 5-day note standard applies to, past5=jobs past it, silent=aged-60+ AR accounts also past it, bal=$ in those silent accounts. \"% current\" on the report = (tracked-past5)/tracked \u2014 higher is better. Descriptive only: no score, no flag, no verdict is computed here. Started 2026-07; cannot be backfilled (pre-2026-07-13 BI bakes have no interaction data).",
+ "baseline_weeks": 6,
+ "rows": [
+  {
+   "week_of": "2026-07-20",
+   "baked": "2026-07-20",
+   "pcs": {
+    "Maria Jimenez": {
+     "tracked": 8,
+     "past5": 8,
+     "silent": 2,
+     "bal": 8061
+    },
+    "Vanessa Sanchez": {
+     "tracked": 44,
+     "past5": 24,
+     "silent": 10,
+     "bal": 87985
+    },
+    "Queta Lopez": {
+     "tracked": 8,
+     "past5": 7,
+     "silent": 0,
+     "bal": 0
+    },
+    "Marcella Sanchez": {
+     "tracked": 112,
+     "past5": 111,
+     "silent": 14,
+     "bal": 10715
+    },
+    "Bianca Padilla": {
+     "tracked": 5,
+     "past5": 4,
+     "silent": 0,
+     "bal": 0
+    },
+    "Itzel Flores": {
+     "tracked": 3,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0
+    }
+   },
+   "source": "live"
+  }
+ ]
+}
