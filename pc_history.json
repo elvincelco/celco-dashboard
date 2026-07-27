@@ -44,6 +44,43 @@
     }
    },
    "source": "live"
+  },
+  {
+   "week_of": "2026-07-27",
+   "baked": "2026-07-27",
+   "pcs": {
+    "Maria Jimenez": {
+     "tracked": 17,
+     "past5": 15,
+     "silent": 6,
+     "bal": 13027
+    },
+    "Queta Lopez": {
+     "tracked": 5,
+     "past5": 4,
+     "silent": 1,
+     "bal": 2950
+    },
+    "Marcella Sanchez": {
+     "tracked": 73,
+     "past5": 64,
+     "silent": 16,
+     "bal": 21186
+    },
+    "Itzel Flores": {
+     "tracked": 37,
+     "past5": 34,
+     "silent": 2,
+     "bal": 3685
+    },
+    "Jorge Sanchez": {
+     "tracked": 1,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0
+    }
+   },
+   "source": "live"
   }
  ]
 }
