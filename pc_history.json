@@ -1,5 +1,5 @@
 {
- "note": "CELCO Monday Report per-PC history. Per coordinator, per week: tracked=jobs the 5-day note standard applies to, past5=jobs past it, silent=aged-60+ AR accounts also past it, bal=$ in those silent accounts. \"% current\" on the report = (tracked-past5)/tracked \u2014 higher is better. Descriptive only: no score, no flag, no verdict is computed here. Started 2026-07; cannot be backfilled (pre-2026-07-13 BI bakes have no interaction data).",
+ "note": "CELCO Monday Report per-PC history. Per coordinator, per week: active=the PC’s total open jobs (openjobs slot) = the % current denominator, past5=jobs past the 5-day note standard, silent=aged-60+ AR accounts also past it, bal=$ in those silent accounts. tracked=legacy stale-worklist subset, retained for reference only (NOT a denominator). \"% current\" on the report = (active-past5)/active — higher is better; PCs with active<20 open jobs are omitted as too-small-sample. Descriptive only: no score, no flag, no verdict is computed here. Started 2026-07; cannot be backfilled (pre-2026-07-13 BI bakes have no interaction data).",
  "baseline_weeks": 6,
  "rows": [
   {
@@ -10,37 +10,43 @@
      "tracked": 8,
      "past5": 8,
      "silent": 2,
-     "bal": 8061
+     "bal": 8061,
+     "active": 92
     },
     "Vanessa Sanchez": {
      "tracked": 44,
      "past5": 24,
      "silent": 10,
-     "bal": 87985
+     "bal": 87985,
+     "active": 90
     },
     "Queta Lopez": {
      "tracked": 8,
      "past5": 7,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 55
     },
     "Marcella Sanchez": {
      "tracked": 112,
      "past5": 111,
      "silent": 14,
-     "bal": 10715
+     "bal": 10715,
+     "active": 186
     },
     "Bianca Padilla": {
      "tracked": 5,
      "past5": 4,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 270
     },
     "Itzel Flores": {
      "tracked": 3,
      "past5": 0,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 120
     }
    },
    "source": "live"
@@ -53,28 +59,54 @@
      "tracked": 17,
      "past5": 15,
      "silent": 6,
-     "bal": 13027
+     "bal": 13027,
+     "active": 97
     },
     "Queta Lopez": {
      "tracked": 5,
      "past5": 4,
      "silent": 1,
-     "bal": 2950
+     "bal": 2950,
+     "active": 55
     },
     "Marcella Sanchez": {
      "tracked": 73,
      "past5": 64,
      "silent": 16,
-     "bal": 21186
+     "bal": 21186,
+     "active": 166
     },
     "Itzel Flores": {
      "tracked": 37,
      "past5": 34,
      "silent": 2,
-     "bal": 3685
+     "bal": 3685,
+     "active": 122
     },
     "Jorge Sanchez": {
      "tracked": 1,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0,
+     "active": 1
+    },
+    "Vanessa Sanchez": {
+     "tracked": 0,
+     "active": 83,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0
+    },
+    "Bianca Padilla": {
+     "tracked": 0,
+     "active": 297,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0
+    },
+    "Emmanuel Padilla": {
+     "tracked": 0,
+     "active": 1,
      "past5": 0,
      "silent": 0,
      "bal": 0
@@ -90,34 +122,47 @@
      "tracked": 16,
      "past5": 14,
      "silent": 6,
-     "bal": 12352
+     "bal": 12352,
+     "active": 110
     },
     "Vanessa Sanchez": {
      "tracked": 19,
      "past5": 2,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 89
     },
     "Queta Lopez": {
      "tracked": 38,
      "past5": 13,
      "silent": 4,
-     "bal": 5109
+     "bal": 5109,
+     "active": 65
     },
     "Marcella Sanchez": {
      "tracked": 135,
      "past5": 38,
      "silent": 7,
-     "bal": 6820
+     "bal": 6820,
+     "active": 153
     },
     "Itzel Flores": {
      "tracked": 34,
      "past5": 11,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 123
     },
     "Bianca Padilla": {
      "tracked": 26,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0,
+     "active": 343
+    },
+    "Emmanuel Padilla": {
+     "tracked": 0,
+     "active": 1,
      "past5": 0,
      "silent": 0,
      "bal": 0
@@ -133,28 +178,47 @@
      "tracked": 11,
      "past5": 7,
      "silent": 3,
-     "bal": 6972
+     "bal": 6972,
+     "active": 104
     },
     "Queta Lopez": {
      "tracked": 6,
      "past5": 4,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 62
     },
     "Marcella Sanchez": {
      "tracked": 14,
      "past5": 10,
      "silent": 2,
-     "bal": 925
+     "bal": 925,
+     "active": 144
     },
     "Itzel Flores": {
      "tracked": 9,
      "past5": 6,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 137
     },
     "Vanessa Sanchez": {
      "tracked": 1,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0,
+     "active": 90
+    },
+    "Bianca Padilla": {
+     "tracked": 0,
+     "active": 349,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0
+    },
+    "Emmanuel Padilla": {
+     "tracked": 0,
+     "active": 1,
      "past5": 0,
      "silent": 0,
      "bal": 0
@@ -170,28 +234,47 @@
      "tracked": 46,
      "past5": 9,
      "silent": 2,
-     "bal": 2710
+     "bal": 2710,
+     "active": 90
     },
     "Marcella Sanchez": {
      "tracked": 94,
      "past5": 87,
      "silent": 21,
-     "bal": 20580
+     "bal": 20580,
+     "active": 142
     },
     "Itzel Flores": {
      "tracked": 21,
      "past5": 19,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 141
     },
     "Bianca Padilla": {
      "tracked": 1,
      "past5": 1,
      "silent": 0,
-     "bal": 0
+     "bal": 0,
+     "active": 343
     },
     "Queta Lopez": {
      "tracked": 2,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0,
+     "active": 62
+    },
+    "Maria Jimenez": {
+     "tracked": 0,
+     "active": 111,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0
+    },
+    "Emmanuel Padilla": {
+     "tracked": 0,
+     "active": 1,
      "past5": 0,
      "silent": 0,
      "bal": 0
