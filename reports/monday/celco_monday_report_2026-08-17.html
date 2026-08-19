@@ -20,11 +20,11 @@ body{background:#000;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,
 .btn:hover{border-color:#ff6a00;color:#ff6a00;}
 .btn.primary{background:#ff6a00;color:#000;border-color:#ff6a00;}
 
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:26px;}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:26px;}
 .kpi{background:#111;border:1px solid #1c1c1c;border-radius:14px;padding:16px;}
 .kpi-lbl{font-size:9px;font-weight:600;letter-spacing:1.4px;color:#666;text-transform:uppercase;}
 .kpi-val{font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-0.5px;}
-.kpi-val.red{color:#f87171;}.kpi-val.orange{color:#ff6a00;}.kpi-val.dim{color:#888;}.kpi-val.info{color:#38bdf8;}
+.kpi-val.red{color:#f87171;}.kpi-val.orange{color:#ff6a00;}.kpi-val.dim{color:#888;}
 .kpi-note{font-size:10px;color:#555;margin-top:4px;}
 .kpi-delta{font-size:10px;margin-top:4px;font-weight:600;}
 .kpi-delta.good{color:#4ade80;}.kpi-delta.bad{color:#f87171;}.kpi-delta.flat{color:#888;font-weight:400;}
@@ -194,7 +194,6 @@ tr:last-child td{border-bottom:none;}
     <div class="kpi"><div class="kpi-lbl">Aged 60+ &amp; Silent</div><div class="kpi-val red" id="k2">—</div><div class="kpi-note" id="k2n">accounts · Sec 2</div></div>
     <div class="kpi"><div class="kpi-lbl">Silent Balance at Risk</div><div class="kpi-val orange" id="k3">—</div><div class="kpi-note">60+ days, no recent note</div></div>
     <div class="kpi"><div class="kpi-lbl">Calendars Current</div><div class="kpi-val dim" id="k4">— / 6</div><div class="kpi-note">manual check · Sec 3</div></div>
-    <div class="kpi"><div class="kpi-lbl">Waiting for Final Closure</div><div class="kpi-val info" id="k5">—</div><div class="kpi-note" id="k5n">awareness · not graded</div></div>
   </div>
 
   <!-- PER-PC TREND (filled by the trend script from __PC_HISTORY__; stays hidden if absent) -->
@@ -215,13 +214,6 @@ tr:last-child td{border-bottom:none;}
     </div>
     <div class="sec-std"><b>Standard:</b> every account over 60 days aged must show active pursuit — outreach attempted and notated. Listed: AR-status accounts with an open balance, 60+ days from invoice, with no DASH note in the last 5 days — the same 5-day standard as Section 1. Accounts being actively notated do <b>not</b> appear here regardless of age.</div>
     <div id="sec2g"></div>
-  </div>
-
-  <!-- WAITING FOR FINAL CLOSURE — awareness only, NOT graded -->
-  <div class="sec">
-    <div class="sec-hdr"><div><span class="sec-title">Waiting for Final Closure — Closeout Watch</span><span class="manual-tag" style="background:rgba(56,189,248,0.14);color:#38bdf8;border-color:rgba(56,189,248,0.35);">AWARENESS · NOT GRADED</span></div></div>
-    <div class="sec-std"><b>Why this matters:</b> these jobs are finished but not yet closed out in DASH. Until they close, they don’t register in Division Briefing closed-job stats — so a division’s closed-job numbers stall even when the work is done. This is a shared heads-up to work them down, <b>not</b> a graded metric and not part of any coordinator’s score. Grouped by coordinator, largest backlog first; within each, oldest since invoiced first.</div>
-    <div id="wfcg"></div>
   </div>
 
   <!-- SECTION 3 -->
@@ -268,11 +260,6 @@ function __links(){var out={};['interaction','openjobs'].forEach(function(s){var
 function __buildInteraction(){var r=__slot('interaction');if(!r.length)return [];var h=r[0],jn=__ix(h,'Job Number'),nm=__ix(h,'Job Name'),li=__ix(h,'Last Interaction'),nt=__ix(h,'Last Journal Note'),st=__ix(h,'Job Status');var out=[];for(var i=1;i<r.length;i++){var row=r[i];if(!row||!row[jn])continue;var job=String(row[jn]||'').trim();if(isInternalJob(job))continue;var status=String(row[st]||'').trim();if(INTERACTION_EXCLUDED_STATUSES.indexOf(status)!==-1)continue;var days=__daysSince(row[li]);if(days===null)continue;var note=String(row[nt]||'').replace(/\s+/g,' ').trim();if(note.length>320)note=note.slice(0,320)+'…';out.push({job:job,name:String(row[nm]||'').trim(),status:status,days:days,note:note});}return out;}
 function __buildD(){var inter=__buildInteraction(),m=__coordMap();var sec1={};inter.forEach(function(j){if(j.days>INTERACTION_MAX_DAYS){var pc=__coordFor(j.job,m)||'';(sec1[pc]=sec1[pc]||[]).push({job:j.job,name:j.name,status:j.status,days:j.days,note:j.note});}});var iMap={};inter.forEach(function(j){iMap[j.job]={days:j.days,note:j.note};});var sec2=[];var ar=__slot('ar');if(ar.length){var h=ar[0],jn=__ix(h,'Job Number'),nm=__ix(h,'Job Name'),bi=__ix(h,'Balance Owing'),di=__ix(h,'Date Invoiced'),si=__ix(h,'Job Status'),ci=__ix(h,'Coordinator');for(var i=1;i<ar.length;i++){var row=ar[i];if(!row||!row[jn])continue;var job=String(row[jn]||'').trim();if(String(row[si]||'').trim()!=='Accounts Receivable')continue;var bal=__money(row[bi]);if(!(bal>0))continue;var aged=__daysSince(row[di]);if(aged===null||aged<60)continue;var it=iMap[job];if(!it)continue;sec2.push({pc:(ci>=0?String(row[ci]||'').trim():''),job:job,name:String(row[nm]||'').trim(),bal:bal,aged:aged,noteDays:it.days,note:it.note});}}return {sec1:sec1,sec2:sec2,links:__links()};}
 var D=__buildD();
-
-// Waiting for Final Closure — read straight off the AR slot (now carries WFC +
-// its Coordinator column). Awareness list only; never feeds any grade or the
-// Section-1/2 standard. Excludes internal job families, same as everything else.
-function __buildWFC(){var r=__slot('ar');if(!r.length)return [];var h=r[0],jn=__ix(h,'Job Number'),nm=__ix(h,'Job Name'),si=__ix(h,'Job Status'),ci=__ix(h,'Coordinator'),di=__ix(h,'Date Invoiced');var out=[];for(var i=1;i<r.length;i++){var row=r[i];if(!row||!row[jn])continue;var job=String(row[jn]||'').trim();if(isInternalJob(job))continue;if(String(row[si]||'').trim()!=='Waiting for Final Closure')continue;out.push({job:job,name:String(row[nm]||'').trim(),pc:(ci>=0?String(row[ci]||'').trim():''),invDays:__daysSince(row[di])});}return out;}
 
 var ALIAS = {'':'Unassigned'};
 var PCS6 = ['Queta Lopez','Vanessa Sanchez','Itzel Flores','Marcella Sanchez','Bianca Padilla','Maria Jimenez'];
@@ -389,60 +376,6 @@ function renderSec2(){
   document.getElementById('k3').textContent=fmt$(tot);
 }
 renderSec2();
-
-// ── Waiting for Final Closure (awareness panel + KPI card k5) ──
-// Descriptive only: counts and ages, no %, no color-graded pass/fail, no coaching
-// input. Uses the SAME collapsible native-<details> pattern as Section 1 so it
-// survives the finalize script-strip in the emailed file.
-function renderWFC(){
-  var list=(typeof __buildWFC==='function')?__buildWFC():[];
-  var k5=document.getElementById('k5'), k5n=document.getElementById('k5n'), wrap=document.getElementById('wfcg');
-  if(k5) k5.textContent=list.length;
-  var aged60=list.filter(function(x){return x.invDays!=null&&x.invDays>=60;}).length;
-  if(k5n) k5n.textContent=aged60+' invoiced 60+ days ago';
-  // No WFC rows → either a genuinely clear board or (for pre-2026-08-18 bakes) a
-  // BI pull taken before WFC was exposed in the AR report. Either way, hide the
-  // card + panel rather than assert a possibly-false "none".
-  if(!list.length){
-    if(wrap){ var sec=wrap.closest('.sec'); if(sec) sec.style.display='none'; }
-    if(k5){ var kc=k5.closest('.kpi'); if(kc) kc.style.display='none'; }
-    return;
-  }
-  if(!wrap) return;
-  var byPc={}; list.forEach(function(x){ var k=pcName(x.pc); (byPc[k]=byPc[k]||[]).push(x); });
-  var groups=Object.keys(byPc).map(function(pc){
-    var arr=byPc[pc];
-    arr.sort(function(a,b){ return (b.invDays==null?-1:b.invDays)-(a.invDays==null?-1:a.invDays); });
-    return {pc:pc, arr:arr, oldest:(arr[0].invDays==null?0:arr[0].invDays)};
-  }).sort(function(a,b){ return b.arr.length-a.arr.length; });
-  // neutral aging emphasis (amber for age, NOT the red grading palette)
-  function wfcCol(d){ return d==null?'#666':d>180?'#f59e0b':d>90?'#fbbf24':'#9ca3af'; }
-  function tbl(arr){
-    var h='<div class="pc-jobs" style="overflow-x:auto;"><table><thead><tr><th>Job</th><th>Name</th><th style="text-align:right">Since invoiced</th></tr></thead><tbody>';
-    arr.forEach(function(x){
-      h+='<tr><td class="jnum">'+jlink(x.job)+'</td><td class="jname">'+esc(x.name)+'</td>'
-        +'<td class="jdays" style="text-align:right;color:'+wfcCol(x.invDays)+'">'+(x.invDays==null?'—':x.invDays+'d')+'</td></tr>';
-    });
-    return h+'</tbody></table></div>';
-  }
-  var LIM=5;
-  wrap.innerHTML='';
-  groups.forEach(function(g){
-    var el=document.createElement('details'); el.className='pc-group';
-    var body=tbl(g.arr.slice(0,LIM));
-    if(g.arr.length>LIM){
-      body+='<details class="beyond-wrap"><summary class="beyond-sum">Show all '+g.arr.length+' jobs</summary>'+tbl(g.arr.slice(LIM))+'</details>';
-      body+='<div class="digest-note">+ '+(g.arr.length-LIM)+' more — full live list in CELCO BI → PC Hub</div>';
-    }
-    el.innerHTML='<summary class="pc-row">'
-      +'<div class="pc-name">'+esc(g.pc)+'</div>'
-      +'<div class="pc-worst">oldest: <b>'+(g.oldest?g.oldest+'d':'—')+'</b> since invoiced</div>'
-      +'<div class="pc-count">'+g.arr.length+'</div><div class="pc-count-lbl">awaiting closure</div>'
-      +'<div class="chev">▼</div></summary>'+body;
-    wrap.appendChild(el);
-  });
-}
-renderWFC();
 
 // ── section 3: auto day-grid from ICS feeds (simulated week for mockup) ──
 // Rule: Mon–Fri, >=1 event per day, all divisions. Auto PASS/FLAG from the grid;
