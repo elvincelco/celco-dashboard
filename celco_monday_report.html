@@ -49,6 +49,7 @@ table.pct-t tr:last-child td{border-bottom:none;}
 .pct-spark{min-width:126px;line-height:0;}
 .pct-cap{font-size:9px;color:#4a4a4a;margin-top:3px;line-height:1.4;}
 .pct-lg{font-size:10px;color:#5a5a5a;margin-top:11px;line-height:1.6;}
+.pct-low td{color:#5a5a5a;}.pct-low td.l{color:#8a8a8a;font-weight:600;}.pct-dim{color:#6a6a6a;font-weight:700;}
 
 .sec{margin-bottom:30px;}
 .sec-hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px;}
@@ -557,7 +558,7 @@ function finalizeReport(){
    stale-interaction worklist subset. A PC keeping everything current therefore
    reads ~100% (few/no jobs past standard against a full job book), instead of the
    old metric's misleading 0%/100% swings on a 1-3 job self-selected denominator.
-   PCs with fewer than FLOOR open jobs are omitted as too-small-sample.
+   PCs with fewer than LOWSAMPLE open jobs are shown greyed (too few to score) rather than omitted.
 
    This section is DESCRIPTIVE. It computes no score, no ranking verdict, and no
    flag. It does not attempt to detect note-batching or any other pattern in how
@@ -579,23 +580,38 @@ function finalizeReport(){
   if(!latest.pcs||!Object.keys(latest.pcs).length)return;
 
   var GREEN=80, AMBER=60;                       // % current bands
-  var FLOOR=20;                                 // min open jobs to publish a % (small-sample guard)
-  function pct(p){ return (!p||!p.active||p.active<FLOOR) ? null : (p.active-(p.past5||0))/p.active*100; }
+  var LOWSAMPLE=20;                             // below this many open jobs the % is unreliable — greyed, not hidden
+  function pct(p){ return (!p||!p.active) ? null : (p.active-(p.past5||0))/p.active*100; }
+  function low(p){ return !p||!p.active||p.active<LOWSAMPLE; }
   function band(v){ return v>=GREEN?'pct-g' : v>=AMBER?'pct-o' : 'pct-r'; }
   function bandCol(v){ return v>=GREEN?'#4ade80' : v>=AMBER?'#fb923c' : '#f87171'; }
 
   var names=Object.keys(latest.pcs).sort();
   var data=names.map(function(n){
-    var series=rows.map(function(r){ return pct(r.pcs&&r.pcs[n]); })
-                   .filter(function(v){ return v!==null; });
     var p=latest.pcs[n];
-    return {name:n, p:p, cur:pct(p), series:series};
-  }).filter(function(d){ return d.cur!==null; });
+    // sparkline uses only adequately-sampled weeks so the trend line stays meaningful
+    var series=rows.map(function(r){ var pp=r.pcs&&r.pcs[n]; return (pp&&pp.active>=LOWSAMPLE)?pct(pp):null; })
+                   .filter(function(v){ return v!==null; });
+    return {name:n, p:p, cur:pct(p), low:low(p), series:series};
+  }).filter(function(d){ return d.cur!==null; });   // only drop PCs with no open jobs at all
 
-  // worst first: this is an attention list, not a leaderboard
-  data.sort(function(a,b){ return a.cur-b.cur; });
+  // scored PCs worst-first (attention list); low-sample rows sink to the bottom, greyed
+  data.sort(function(a,b){ if(a.low!==b.low) return a.low?1:-1; return a.cur-b.cur; });
 
   var body=data.map(function(d){
+    if(d.low){
+      // shown but NOT scored: no band, no trend, no verdict on a handful of jobs
+      return '<tr class="pct-low">'+
+        '<td class="l">'+d.name+'</td>'+
+        '<td class="pct-spark"><div class="pct-cap">low sample · '+d.p.active+' open job'+(d.p.active===1?'':'s')+'</div></td>'+
+        '<td class="pct-cur pct-dim">'+d.cur.toFixed(1)+'%</td>'+
+        '<td>'+(d.p.past5||'<span class="pct-zero">0</span>')+'</td>'+
+        '<td>'+d.p.active+'</td>'+
+        '<td>'+(d.p.silent||'<span class="pct-zero">0</span>')+'</td>'+
+        '<td class="'+(d.p.bal?'pct-money':'pct-zero')+'">'+
+          (d.p.bal?'$'+Math.round(d.p.bal).toLocaleString():'—')+'</td>'+
+      '</tr>';
+    }
     var cap='';
     if(d.series.length>=2){
       var span=d.series[d.series.length-1]-d.series[d.series.length-2];   // week-over-week, consecutive readings
@@ -625,7 +641,7 @@ function finalizeReport(){
       (window.INTERACTION_MAX_DAYS||5)+'-day standard</div>'+
     '<div class="pct-sub">One reading per week, taken at Monday bake time. '+
       '% current = share of the PC’s open jobs noted within the '+(window.INTERACTION_MAX_DAYS||5)+'-day standard. Higher is better. '+
-      'Sorted worst-first — an attention list, not a leaderboard. PCs with fewer than '+FLOOR+' open jobs are omitted.</div>'+
+      'Sorted worst-first — an attention list, not a leaderboard. PCs with fewer than '+LOWSAMPLE+' open jobs are shown greyed — too few to score.</div>'+
     '<table class="pct-t"><thead><tr>'+
       '<th class="l">Project Coordinator</th><th>Trend</th><th>% Current</th>'+
       '<th>Past std</th><th>Open jobs</th><th>60+ Silent</th><th>Silent bal. at risk</th>'+
