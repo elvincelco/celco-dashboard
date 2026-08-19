@@ -100,12 +100,6 @@ tr:last-child td{border-bottom:none;}
 
 .cal-row{display:flex;align-items:center;gap:14px;padding:12px 18px;background:#111;border:1px solid #1c1c1c;border-radius:12px;margin-bottom:8px;flex-wrap:wrap;}
 .cal-div{font-size:9px;color:#555;display:block;margin-top:2px;font-weight:500;}
-.day-grid{display:flex;gap:5px;}
-.day-cell{width:38px;text-align:center;border-radius:8px;padding:5px 0 4px;background:#0b0b0b;border:1px solid #1e1e1e;}
-.day-cell .d-lbl{font-size:8px;color:#555;font-weight:700;letter-spacing:0.5px;}
-.day-cell .d-cnt{font-size:13px;font-weight:700;margin-top:2px;color:#4ade80;}
-.day-cell.blank{background:rgba(248,113,113,0.08);border-color:rgba(248,113,113,0.35);}
-.day-cell.blank .d-cnt{color:#f87171;}
 .cal-auto{font-size:10px;font-weight:700;width:86px;text-align:center;padding:5px 0;border-radius:8px;}
 .cal-auto.pass{background:rgba(74,222,128,0.12);color:#4ade80;}
 .cal-auto.fail{background:rgba(248,113,113,0.12);color:#f87171;}
@@ -219,7 +213,7 @@ tr:last-child td{border-bottom:none;}
   <!-- SECTION 3 -->
   <div class="sec">
     <div class="sec-hdr"><div><span class="sec-num">3</span><span class="sec-title">Weekly Calendar Maintenance</span><span class="manual-tag">MANUAL CHECK · MARIA</span></div></div>
-    <div class="sec-std"><b>Standard:</b> the prior week's calendar (Mon–Fri) must have at least one entry every day. During her Monday review, Maria opens each division’s calendar and taps the weekdays that have an entry; any day left un-ticked flags that division. Notes optional.</div>
+    <div class="sec-std"><b>Standard:</b> the prior week's calendar (Mon–Fri) must have at least one entry every day. During her Monday review, Maria opens each division’s calendar and marks it Pass or Fail for the week. Notes optional.</div>
     <div id="sec3"></div>
   </div>
 
@@ -377,32 +371,32 @@ function renderSec2(){
 }
 renderSec2();
 
-// ── section 3: auto day-grid from ICS feeds (simulated week for mockup) ──
-// Rule: Mon–Fri, >=1 event per day, all divisions. Auto PASS/FLAG from the grid;
-// Maria's override annotates the auto result — it never replaces it on the record.
 // ── SECTION 3: MANUAL weekly calendar check (no feeds) ──
 // The PC Manager reviews each division's Google Calendar during her Monday review
-// and taps the weekdays that have an entry. Status derives live from her ticks.
-// Finalize freezes the ticks (native 'on' classes survive the script-strip) and
-// notes into static content, so the emailed file shows exactly what she checked.
+// and marks it Pass or Fail for the week (one call per division). Finalize freezes
+// the selected Pass/Fail button (native 'on' class survives the script-strip) and
+// notes into static content, so the emailed file shows exactly what she marked.
 var CAL=[['Vanessa Sanchez','Emergency'],['Queta Lopez','Structure'],['Itzel Flores','Maintenance'],['Marcella Sanchez','Plumbing'],['Maria Jimenez','Electrical'],['Bianca Padilla','Irvine']].map(function(o){return {pc:o[0],div:o[1]};});
-var DL=['MON','TUE','WED','THU','FRI'];
-var calDays={};
 var s3=document.getElementById('sec3');
-(function(){var st=document.createElement('style');st.textContent='#sec3 .day-cell{cursor:pointer;user-select:none;transition:all .12s;}#sec3 .day-cell:hover{border-color:#555;}#sec3 .day-cell.on{background:rgba(74,222,128,0.14);border-color:rgba(74,222,128,0.5);}#sec3 .day-cell .d-cnt{font-size:16px;font-weight:700;color:#555;}#sec3 .day-cell.on .d-cnt{color:#4ade80;}#sec3 .day-cell .d-cnt:after{content:"—";}#sec3 .day-cell.on .d-cnt:after{content:"✓";}#sec3 .cal-hint{font-size:10px;color:#555;margin:4px 0 0;}';document.head.appendChild(st);})();
-function calStatus(i){var arr=calDays[i]||[];var c=arr.filter(Boolean).length;return {checked:c,pass:c===5};}
-function calDay(i,di){calDays[i][di]=!calDays[i][di];document.getElementById('dc'+i+'_'+di).classList.toggle('on',calDays[i][di]);var st=calStatus(i),au=document.getElementById('ca'+i);au.className='cal-auto '+(st.pass?'pass':'fail');au.textContent=st.pass?'✓ ALL 5 DAYS':'⚠ '+(5-st.checked)+' MISSING';updK4();}
+var calState={};  // per division: undefined | 'pass' | 'fail'
+function calPick(i,pass,btn){
+  calState[i]=pass?'pass':'fail';
+  var row=btn.closest('.cal-row');
+  row.querySelectorAll('.cal-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  updK4();
+}
 CAL.forEach(function(c,i){
-  calDays[i]=[false,false,false,false,false];
-  var grid=DL.map(function(lbl,di){return '<div class="day-cell" id="dc'+i+'_'+di+'" onclick="calDay('+i+','+di+')"><div class="d-lbl">'+lbl+'</div><div class="d-cnt"></div></div>';}).join('');
   var el=document.createElement('div'); el.className='cal-row';
   el.innerHTML='<div class="cal-name">'+esc(c.pc)+'<span class="cal-div">'+esc(c.div)+' calendar</span></div>'
-    +'<div><div class="day-grid">'+grid+'</div><div class="cal-hint">tap each weekday that has a calendar entry</div></div>'
-    +'<div class="cal-auto fail" id="ca'+i+'">⚠ 5 MISSING</div>'
-    +'<input class="cal-cmt" placeholder="Maria’s note — e.g. “Wed dark: division holiday”">';
+    +'<div class="cal-btns">'
+      +'<button class="cal-btn yes" onclick="calPick('+i+',1,this)">✓ Pass</button>'
+      +'<button class="cal-btn no" onclick="calPick('+i+',0,this)">✗ Fail</button>'
+    +'</div>'
+    +'<input class="cal-cmt" placeholder="Maria’s note — optional (e.g. “Wed dark: division holiday”)">';
   s3.appendChild(el);
 });
-function updK4(){var done=0;for(var i=0;i<CAL.length;i++){if(calStatus(i).pass)done++;}document.getElementById('k4').textContent=done+' / '+CAL.length;document.getElementById('k4').className='kpi-val '+(done===CAL.length?'':'red');}
+function updK4(){var done=0;for(var i=0;i<CAL.length;i++){if(calState[i]==='pass')done++;}document.getElementById('k4').textContent=done+' / '+CAL.length;document.getElementById('k4').className='kpi-val '+(done===CAL.length?'':'red');}
 updK4();
 
 // ── FINALIZE: freeze all live inputs into static text so the printed PDF (the
@@ -419,7 +413,7 @@ function finalizeReport(){
     if(!v){ wrap.remove(); return; }
     var sp=document.createElement('div');
     sp.className='coach-static';
-    sp.innerHTML='<b>ERIKA</b>';
+    sp.innerHTML='<b>Maria Jimenez:</b> ';
     sp.appendChild(document.createTextNode(v));
     wrap.parentNode.replaceChild(sp,wrap);
   });
