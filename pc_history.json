@@ -1,5 +1,5 @@
 {
- "note": "CELCO Monday Report per-PC history. Per coordinator, per week: active=the PC’s total open jobs (openjobs slot) = the % current denominator, past5=jobs past the 5-day note standard, silent=aged-60+ AR accounts also past it, bal=$ in those silent accounts. tracked=legacy stale-worklist subset, retained for reference only (NOT a denominator). \"% current\" on the report = (active-past5)/active — higher is better; PCs with active<20 open jobs are omitted as too-small-sample. Descriptive only: no score, no flag, no verdict is computed here. Started 2026-07; cannot be backfilled (pre-2026-07-13 BI bakes have no interaction data).",
+ "note": "CELCO Monday Report per-PC history. Per coordinator, per week: active=the PC\u2019s total open jobs (openjobs slot) = the % current denominator, past5=jobs past the 5-day note standard, silent=aged-60+ AR accounts also past it, bal=$ in those silent accounts. tracked=legacy stale-worklist subset, retained for reference only (NOT a denominator). \"% current\" on the report = (active-past5)/active \u2014 higher is better; PCs with active<20 open jobs are omitted as too-small-sample. Descriptive only: no score, no flag, no verdict is computed here. Started 2026-07; cannot be backfilled (pre-2026-07-13 BI bakes have no interaction data).",
  "baseline_weeks": 6,
  "rows": [
   {
@@ -273,6 +273,62 @@
      "bal": 0
     },
     "Emmanuel Padilla": {
+     "tracked": 0,
+     "active": 1,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0
+    }
+   },
+   "source": "live"
+  },
+  {
+   "week_of": "2026-08-24",
+   "baked": "2026-08-24",
+   "pcs": {
+    "Maria Jimenez": {
+     "tracked": 9,
+     "active": 118,
+     "past5": 6,
+     "silent": 2,
+     "bal": 8061
+    },
+    "Queta Lopez": {
+     "tracked": 36,
+     "active": 74,
+     "past5": 5,
+     "silent": 0,
+     "bal": 0
+    },
+    "Vanessa Sanchez": {
+     "tracked": 3,
+     "active": 102,
+     "past5": 2,
+     "silent": 0,
+     "bal": 0
+    },
+    "Marcella Sanchez": {
+     "tracked": 84,
+     "active": 140,
+     "past5": 32,
+     "silent": 9,
+     "bal": 8825
+    },
+    "Itzel Flores": {
+     "tracked": 53,
+     "active": 136,
+     "past5": 16,
+     "silent": 0,
+     "bal": 0
+    },
+    "Bianca Padilla": {
+     "tracked": 1,
+     "active": 451,
+     "past5": 0,
+     "silent": 0,
+     "bal": 0
+    },
+    "Erika Gomez": {
      "tracked": 0,
      "active": 1,
      "past5": 0,
