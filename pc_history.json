@@ -1002,6 +1002,62 @@
     }
    },
    "source": "live"
+  },
+  {
+   "week_of": "2026-11-23",
+   "baked": "2026-11-23",
+   "pcs": {
+    "Maria Jimenez": {
+     "tracked": 12,
+     "active": 72,
+     "past5": 12,
+     "silent": 4,
+     "bal": 9431
+    },
+    "Queta Lopez": {
+     "tracked": 28,
+     "active": 79,
+     "past5": 28,
+     "silent": 3,
+     "bal": 23171
+    },
+    "Vanessa Sanchez": {
+     "tracked": 26,
+     "active": 124,
+     "past5": 24,
+     "silent": 12,
+     "bal": 215045
+    },
+    "Marcella Sanchez": {
+     "tracked": 64,
+     "active": 106,
+     "past5": 63,
+     "silent": 19,
+     "bal": 16874
+    },
+    "Itzel Flores": {
+     "tracked": 28,
+     "active": 136,
+     "past5": 28,
+     "silent": 0,
+     "bal": 0
+    },
+    "Bianca Padilla": {
+     "tracked": 8,
+     "active": 202,
+     "past5": 8,
+     "silent": 0,
+     "bal": 0
+    },
+    "Erika Gomez": {
+     "tracked": 1,
+     "active": 24,
+     "past5": 1,
+     "silent": 0,
+     "bal": 0
+    }
+   },
+   "source": "live"
   }
  ]
 }
